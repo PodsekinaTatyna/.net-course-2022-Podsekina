@@ -8,8 +8,6 @@ namespace Models
 {
     public class Client : Person
     {
-        public Client(string firstName, string lastName, int id, DateTime dateOfBirth) : base(firstName, lastName, id, dateOfBirth)
-        {
-        }
+
     }
 }

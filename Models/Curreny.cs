@@ -8,15 +8,8 @@ namespace Models
 {
     public struct Curreny
     {
-        public int ID { get; set; }
-        public decimal Amount { get; set; }
+        public decimal Code { get; set; }
         public string Name { get; set; }
-        public Curreny(int id, decimal amount, string name)
-        {
-            ID = id;
-            Amount = amount;
-            Name = name;
-        }
 
     }
 }
