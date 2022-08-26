@@ -1,10 +1,12 @@
-﻿using Models;
+﻿using Services;
+using Models;
 using System.Data;
 
 class Program
 {
     static void Main()
     {
+        //Ссылочные типы и типы значений
         Employee employee = new Employee
         {
             FirstName = "Bill",
@@ -13,7 +15,7 @@ class Program
             DateOfBirth = new DateTime(2000, 12, 13),
         };
 
-        RenewalContract(employee); 
+        RenewalContract(employee);
         Console.WriteLine(employee.Contract);
 
         employee.Contract = RenewalContract(employee.PassportID, employee.FirstName, employee.LastName, employee.DateOfBirth);
@@ -31,6 +33,33 @@ class Program
 
         currency = СorrectСurrencyСhange(currency);
         Console.WriteLine($"\nCurrency : {currency.Code} {currency.Name}");
+
+        // Приведение и преобразование типов
+        List<Employee> ouners = new List<Employee> 
+        {
+        new Employee
+        {
+            FirstName = "Bill",
+            LastName = "Smit",
+            PassportID = 123456,
+            DateOfBirth = new DateTime(2000, 12, 13),
+        },
+        new Employee
+        {
+            FirstName = "Bill",
+            LastName = "Smit",
+            PassportID = 123456,
+            DateOfBirth = new DateTime(2000, 12, 13),
+        }
+        };
+        BankService bankService = new BankService();
+        foreach(Employee ouner in ouners)
+        {
+            ouner.Salary = bankService.BankOwnersSalaries(123456, 10000, ouners.Count);
+        }
+        Console.WriteLine("\nSalary of each owner : {0}", ouners[0].Salary);
+
+
 
         Console.ReadKey();
     }
