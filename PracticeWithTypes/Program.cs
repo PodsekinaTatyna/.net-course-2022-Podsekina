@@ -26,11 +26,11 @@ class Program
             Name = "RUP",
         };
 
-        Put50Rubles(currency);
-        Console.WriteLine($"\nDeposited : {currency.Code} {currency.Name}");
+        IncorrectСurrencyСhange(currency);
+        Console.WriteLine($"\nCurrency: {currency.Code} {currency.Name}");
 
-        currency.Code = Put50Rubles(currency.Code);
-        Console.WriteLine($"\nDeposited : {currency.Code} {currency.Name}");
+        currency = СorrectСurrencyСhange(currency);
+        Console.WriteLine($"\nCurrency : {currency.Code} {currency.Name}");
 
         Console.ReadKey();
     }
@@ -47,13 +47,16 @@ class Program
         return Contract;
     }
 
-    public static void Put50Rubles(Curreny curreny)
+    public static void IncorrectСurrencyСhange(Curreny curreny)
     {
-        curreny.Code += 50;
+        curreny.Code = 504;
+        curreny.Name = "USD";
     }
 
-    public static decimal Put50Rubles(decimal code)
+    public static Curreny СorrectСurrencyСhange(Curreny curreny)
     {
-        return code + 50;
+        curreny.Code = 504;
+        curreny.Name = "USD";
+        return curreny;
     }
 }
