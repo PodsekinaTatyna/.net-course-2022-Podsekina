@@ -6,6 +6,8 @@ class Program
 {
     static void Main()
     {
+        BankService bankService = new BankService();
+
         //Ссылочные типы и типы значений
         Employee employee = new Employee
         {
@@ -35,24 +37,24 @@ class Program
         Console.WriteLine($"\nCurrency : {currency.Code} {currency.Name}");
 
         // Приведение и преобразование типов
-        List<Employee> ouners = new List<Employee> 
+        List<Employee> ouners = new List<Employee>
         {
-        new Employee
-        {
-            FirstName = "Bill",
-            LastName = "Smit",
-            PassportID = 123456,
-            DateOfBirth = new DateTime(2000, 12, 13),
-        },
-        new Employee
-        {
-            FirstName = "Bill",
-            LastName = "Smit",
-            PassportID = 123456,
-            DateOfBirth = new DateTime(2000, 12, 13),
-        }
+            new Employee
+            {
+                FirstName = "Bill",
+                LastName = "Smit",
+                PassportID = 123456,
+                DateOfBirth = new DateTime(2000, 12, 13),
+            },
+            new Employee
+            {
+                FirstName = "Bill",
+                LastName = "Smit",
+                PassportID = 123456,
+                DateOfBirth = new DateTime(2000, 12, 13),
+            }
         };
-        BankService bankService = new BankService();
+
         foreach(Employee ouner in ouners)
         {
             ouner.Salary = bankService.BankOwnersSalaries(123456, 10000, ouners.Count);
@@ -81,8 +83,8 @@ class Program
 
     public static string RenewalContract(int passportID, string firstName, string lastName, DateTime date)
     {
-        string Contract = "ID: " + passportID + "\nFull Name: " + firstName + " " + lastName + "\nDate of Birth: " + date.ToString("D");
-        return Contract;
+        return "ID: " + passportID + "\nFull Name: " + firstName + " " + lastName + "\nDate of Birth: " + date.ToString("D");
+         
     }
 
     public static void IncorrectСurrencyСhange(Curreny curreny)
