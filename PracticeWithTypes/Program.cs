@@ -43,8 +43,8 @@ class Program
 
     public static string RenewalContract(int passportID, string firstName, string lastName, DateTime date)
     {
-        string Contract = "ID: " + passportID + "\nFull Name: " + firstName + " " + lastName + "\nDate of Birth: " + date.ToString("D");
-        return Contract;
+        return "ID: " + passportID + "\nFull Name: " + firstName + " " + lastName + "\nDate of Birth: " + date.ToString("D");
+        
     }
 
     public static void IncorrectСurrencyСhange(Curreny curreny)

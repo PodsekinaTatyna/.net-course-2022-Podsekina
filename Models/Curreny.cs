@@ -8,7 +8,7 @@ namespace Models
 {
     public struct Curreny
     {
-        public decimal Code { get; set; }
+        public int Code { get; set; }
         public string Name { get; set; }
 
     }
