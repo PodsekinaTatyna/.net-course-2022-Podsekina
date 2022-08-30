@@ -43,15 +43,14 @@ namespace Services
 
         }
 
-        public List<Client> GetClientsList(ref string lastPhoneNumber)
+        public List<Client> GetClientsList()
         {
             var clientList = GetFakeDataClient().Generate(1000);
-            lastPhoneNumber = clientList[999].PhoneNumber;
 
             return clientList;
         }
 
-        public Dictionary<string, Client> GetClientsDictionary(ref string lastPhoneNumber)
+        public Dictionary<string, Client> GetClientsDictionary()
         {
             Dictionary<string, Client> clientDictionary = new Dictionary<string, Client>();
 
@@ -60,7 +59,6 @@ namespace Services
             {
                 Client client = GetFakeDataClient().Generate();
                 clientDictionary.Add(client.PhoneNumber, client);
-                lastPhoneNumber = client.PhoneNumber;
             }
 
             return clientDictionary;

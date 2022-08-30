@@ -8,10 +8,9 @@ class Program
     {
         TestDataGenerator testDataGenerator = new TestDataGenerator();
         var stopwatch = new Stopwatch();
-        string lastPhoneNumber = "";
 
-        var clientList = testDataGenerator.GetClientsList(ref lastPhoneNumber);
-        var clientDictionary = testDataGenerator.GetClientsDictionary(ref lastPhoneNumber);
+        var clientList = testDataGenerator.GetClientsList();
+        var clientDictionary = testDataGenerator.GetClientsDictionary();
         var employeesList = testDataGenerator.GetEmployeesList();
 
         Console.WriteLine("Замер времени поиска клиента по его номеру телефона среди элементов коллекции:");
@@ -19,7 +18,7 @@ class Program
         {
             stopwatch.Start();
 
-            var lastСlientOnList = clientList.Where(p => p.PhoneNumber == lastPhoneNumber);
+            var lastСlientOnList = clientList.FirstOrDefault(p => p.PhoneNumber == clientList.Last().PhoneNumber);
 
             stopwatch.Stop();
             Console.WriteLine($"Тест {i + 1} : {stopwatch.ElapsedTicks}");
@@ -31,7 +30,7 @@ class Program
         {
             stopwatch.Start();
 
-            var lastСlientOnDictionary = clientDictionary.Where(p => p.Key == lastPhoneNumber);
+            var lastСlientOnDictionary = clientDictionary[clientDictionary.Keys.Last()];
 
             stopwatch.Stop();
             Console.WriteLine($"Тест {i + 1} : {stopwatch.ElapsedTicks}");
@@ -58,7 +57,7 @@ class Program
         {
             stopwatch.Start();
 
-            var lastСlientByExtensionMethod = clientDictionary.FirstOrDefault(p => p.Key == lastPhoneNumber);
+            var lastСlientByExtensionMethod = clientDictionary.FirstOrDefault(p => p.Key == clientDictionary.Keys.Last());
             
             stopwatch.Stop();
             Console.Write($"FirstOrDefault: {i + 1} : {stopwatch.ElapsedTicks}\t\t");
@@ -66,7 +65,7 @@ class Program
 
             stopwatch.Start();
 
-            var lastСlientByKey = clientDictionary[lastPhoneNumber];
+            var lastСlientByKey = clientDictionary[clientDictionary.Keys.Last()];
 
             stopwatch.Stop();
             Console.Write($"By key: {i + 1} : {stopwatch.ElapsedTicks}\n");
