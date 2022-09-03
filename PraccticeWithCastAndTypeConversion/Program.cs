@@ -1,6 +1,7 @@
 ﻿using Services;
 using Models;
 using System.Data;
+using Bogus.DataSets;
 
 class Program
 {
@@ -40,7 +41,7 @@ class Program
             DateOfBirth = new DateTime(1998, 07, 27),
         };
         Employee clientToEmployee = bankService.ClientConverToEmployee(client);
-        clientToEmployee.Contract = RenewalContract(clientToEmployee.PassportID, clientToEmployee.FirstName, clientToEmployee.LastName, clientToEmployee.DateOfBirth);
+        clientToEmployee.Contract = "ID: " + clientToEmployee.PassportID + "\nFull Name: " + clientToEmployee.FirstName + " " + clientToEmployee.LastName + "\nDate of Birth: " + clientToEmployee.DateOfBirth.ToString("D");
         Console.WriteLine("\n{0}", clientToEmployee.Contract);
 
         Console.ReadKey();

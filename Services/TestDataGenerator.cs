@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Bogus;
 using Bogus.DataSets;
 using System.Reflection.Emit;
+using System.Dynamic;
 
 namespace Services
 {
@@ -43,7 +44,9 @@ namespace Services
 
         }
 
-        public List<Client> GetClientsList()
+      
+
+            public List<Client> GetClientsList()
         {
             var clientList = GetFakeDataClient().Generate(1000);
 
@@ -71,5 +74,73 @@ namespace Services
             return employeeList;
         }
 
+        public Dictionary<Client,List<Account>> GetAccounDictionary()
+        {
+            Dictionary<Client, List<Account>> accounDictionary = new Dictionary<Client, List<Account>>();
+
+            accounDictionary.Add(
+                new Client
+                {
+                    FirstName = "Андрей",
+                    LastName = "Попов",
+                    PassportID = 123456,
+                    DateOfBirth = new DateTime(),
+                    PhoneNumber = "123456789"
+                },
+                new List<Account>
+                {
+                    new Account
+                    {
+                        Currency = new Curreny
+                        {
+                            Code = 120,
+                            Name = "USD",
+                        },
+                        Amount = 1233,
+                    },
+                    new Account
+                    {
+                        Currency = new Curreny
+                        {
+                            Code = 200,
+                            Name = "RUP",
+                        },
+                        Amount = 345,
+                    }
+                });
+                   
+            accounDictionary.Add(
+                new Client
+                {
+                    FirstName = "Анна",
+                    LastName = "Иванова",
+                    PassportID = 654321,
+                    DateOfBirth = new DateTime(),
+                    PhoneNumber = "987654321"
+                },
+                new List<Account>
+                {
+                    new Account
+                    {
+                        Currency = new Curreny
+                        {
+                           Code = 120,
+                           Name = "USD",
+                        },
+                        Amount = 234
+                    },
+                    new Account
+                    {
+                        Currency = new Curreny
+                        {
+                            Code = 200,
+                            Name = "RUP",
+                        },
+                        Amount = 5365,
+                    }
+                } );
+
+            return accounDictionary;
+        }
     }
 }

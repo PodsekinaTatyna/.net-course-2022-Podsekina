@@ -22,7 +22,7 @@ class Program
 
             stopwatch.Stop();
             Console.WriteLine($"Тест {i + 1} : {stopwatch.ElapsedTicks}");
-            stopwatch.Restart();
+            stopwatch.Reset();
         }
 
         Console.WriteLine("Замер времени выполнения поиска клиента по его номеру телефона, среди элементов словаря:");
@@ -34,7 +34,7 @@ class Program
 
             stopwatch.Stop();
             Console.WriteLine($"Тест {i + 1} : {stopwatch.ElapsedTicks}");
-            stopwatch.Restart();
+            stopwatch.Reset();
         }
 
         Console.WriteLine("Клиенты младше 18:");
@@ -61,7 +61,7 @@ class Program
             
             stopwatch.Stop();
             Console.Write($"FirstOrDefault: {i + 1} : {stopwatch.ElapsedTicks}\t\t");
-            stopwatch.Restart();
+            stopwatch.Reset();
 
             stopwatch.Start();
 
@@ -69,7 +69,7 @@ class Program
 
             stopwatch.Stop();
             Console.Write($"By key: {i + 1} : {stopwatch.ElapsedTicks}\n");
-            stopwatch.Restart();
+            stopwatch.Reset();
         }
 
 
