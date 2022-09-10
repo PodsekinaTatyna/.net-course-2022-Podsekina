@@ -1,10 +1,10 @@
 ﻿using Models;
 using Services;
+using Services.Filters;
 using Services.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,7 +16,8 @@ namespace ServiceTests
         [Fact]
         public void AddNewClientLimit18YearsExceptionTest()
         {
-            ClientService clientService = new ClientService();
+            ClientService clientService = new ClientService(new ClientStorage());
+
             Client client = new Client()
             {
                 FirstName = "Игорь",
@@ -45,7 +46,8 @@ namespace ServiceTests
         [Fact]
         public void AddNewClientNoPassportDataExceptionTest()
         {
-            ClientService clientService = new ClientService();
+            ClientService clientService = new ClientService(new ClientStorage());
+
             Client client = new Client()
             {
                 FirstName = "Игорь",
@@ -73,7 +75,8 @@ namespace ServiceTests
         [Fact]
         public void AddNewClientTryingToAddAnExistingClientTest()
         {
-            ClientService clientService = new ClientService();
+            ClientService clientService = new ClientService(new ClientStorage());
+
             Client oldClient = new Client()
             {
                 FirstName = "Игорь",
@@ -111,7 +114,8 @@ namespace ServiceTests
         [Fact]
         public void AddNewAccount_NoExistsClient_And_AccountAlreadyExistsExceptionTest()
         {
-            ClientService clientService = new ClientService();
+            ClientService clientService = new ClientService(new ClientStorage());
+
             Client client = new Client()
             {
                 FirstName = "Игорь",
@@ -146,7 +150,8 @@ namespace ServiceTests
         [Fact]
         public void AccountEditing_NoExistsClient_And_NoExistsAccountExceptionTest()
         {
-            ClientService clientService = new ClientService();
+            ClientService clientService = new ClientService(new ClientStorage());
+
             Client existsClient = new Client()
             {
                 FirstName = "Игорь",
@@ -186,6 +191,7 @@ namespace ServiceTests
             {
                 clientService.AddNewClient(existsClient);
                 clientService.AccountEditing(existsClient, existsAccount);
+
                 Assert.Throws<KeyNotFoundException>(() => clientService.AccountEditing(noExistsClient,existsAccount));
                 Assert.Throws<NullReferenceException>(() => clientService.AccountEditing(existsClient, noExistsAccount));
             }
@@ -193,6 +199,47 @@ namespace ServiceTests
             {
                 Assert.True(false);
             }
+
+        }
+
+        [Fact]
+        public void GetClients_ByTheSpecifiedFilter_Test()
+        {
+            // Arrange
+            ClientStorage clientStorage = new ClientStorage();
+            ClientService clientService = new ClientService(clientStorage);
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
+            ClientFilter clientFilter = new ClientFilter();
+
+            for (int i = 0; i < 10; i++)
+            {
+                clientStorage.Add(testDataGenerator.GetFakeDataClient().Generate());
+            }
+
+            Client client = clientStorage._dictionaryClient.Keys.First();
+             
+            // Act/Assert
+            clientFilter.FirstName = client.FirstName;
+            clientFilter.LastName = client.LastName;
+            clientFilter.PhoneNumber = client.PhoneNumber;
+
+            Assert.Equal(clientStorage._dictionaryClient[client], clientService.GetClients(clientFilter)[client]);
+
+            clientFilter.FirstName = null;
+            clientFilter.LastName = null;
+            clientFilter.PhoneNumber = null;
+
+            clientFilter.StartDate = clientStorage._dictionaryClient.Min(p => p.Key.DateOfBirth);
+
+            Assert.NotNull(clientService.GetClients(clientFilter));
+            clientFilter.StartDate = default;
+
+            clientFilter.EndDate = clientStorage._dictionaryClient.Max(p => p.Key.DateOfBirth);
+
+            Assert.NotNull(clientService.GetClients(clientFilter));
+            clientFilter.StartDate = default;
+
+            var averageAge = clientStorage._dictionaryClient.Average(p => p.Key.DateOfBirth.Year);
 
         }
 
