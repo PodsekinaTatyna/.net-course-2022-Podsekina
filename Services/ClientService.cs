@@ -7,12 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Models;
 using Services.Exceptions;
+using Services.Filters;
 
 namespace Services
 {
     public class ClientService
     {
-        private Dictionary<Client, List<Account>> dictionaryClient = new Dictionary<Client, List<Account>>();
+        private ClientStorage _clientStorage { get; set; }
+        public ClientService(ClientStorage clientStorage)
+        {
+            this._clientStorage = clientStorage;
+        }
 
         public void AddNewClient(Client client)
         {
@@ -22,28 +27,34 @@ namespace Services
             if (client.PassportID == 0)
                 throw new NoPassportDataException("Паспортные данные обязательно должны быть введены");
 
-            if (dictionaryClient.ContainsKey(client))
-                throw new ArgumentException("Такой клиент уже существует");
+            _clientStorage.Add(client);
+        }
 
-            dictionaryClient.Add(
-                client,
-                new List<Account>
-                {
-                    new Account
-                    {
-                        Currency = new Curreny
-                        {
-                            Code = 840,
-                            Name = "USD",
-                        },
-                        Amount = 0
-                    }
-                });
+        public Dictionary<Client, List<Account>> GetClients(ClientFilter clientFilter)
+        {
+            var filteredDictionary = _clientStorage._dictionaryClient.Select(p => p);
+
+            if (clientFilter.FirstName != null)
+               filteredDictionary = filteredDictionary.Where(p => p.Key.FirstName == clientFilter.FirstName);
+
+            if (clientFilter.LastName != null)
+                filteredDictionary = filteredDictionary.Where(p => p.Key.LastName == clientFilter.LastName);
+
+            if (clientFilter.PhoneNumber != null)
+                filteredDictionary = filteredDictionary.Where(p => p.Key.PhoneNumber == clientFilter.PhoneNumber);
+            
+            if (clientFilter.StartDate != default)
+                filteredDictionary = filteredDictionary.Where(p => p.Key.DateOfBirth == clientFilter.StartDate);
+            
+            if (clientFilter.EndDate != default)
+                filteredDictionary = filteredDictionary.Where(p => p.Key.DateOfBirth.Date == clientFilter.EndDate.Date);
+
+            return filteredDictionary.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         public void AddNewAccount(Client client)
         {
-            if (!dictionaryClient.ContainsKey(client))
+            if (!_clientStorage._dictionaryClient.ContainsKey(client))
                 throw new KeyNotFoundException("В базе нет такого клиента");
 
             Account newAccount = new Account
@@ -56,18 +67,18 @@ namespace Services
                 Amount = 0
             };
 
-            if (dictionaryClient[client].FirstOrDefault(p => p.Currency.Name == newAccount.Currency.Name) != null)
+            if (_clientStorage._dictionaryClient[client].FirstOrDefault(p => p.Currency.Name == newAccount.Currency.Name) != null)
                 throw new AccountAlreadyExistsException("У клиента уже есть такой счет");
 
-            dictionaryClient[client].Add(newAccount);
+            _clientStorage._dictionaryClient[client].Add(newAccount);
         }
 
         public void AccountEditing(Client client, Account account)
         {
-            if (!dictionaryClient.ContainsKey(client))
+            if (!_clientStorage._dictionaryClient.ContainsKey(client))
                 throw new KeyNotFoundException("В базе нет такого клиента");
 
-            var oldAccount = dictionaryClient[client].FirstOrDefault(p => p.Currency.Name == account.Currency.Name);
+            var oldAccount = _clientStorage._dictionaryClient[client].FirstOrDefault(p => p.Currency.Name == account.Currency.Name);
 
             if (oldAccount == null)
                 throw new NullReferenceException("У клиента нет такого счета");
