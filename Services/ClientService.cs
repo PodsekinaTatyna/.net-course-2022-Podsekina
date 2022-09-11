@@ -35,10 +35,10 @@ namespace Services
             var filteredDictionary = _clientStorage._dictionaryClient.Select(p => p);
 
             if (clientFilter.FirstName != null)
-               filteredDictionary = filteredDictionary.Where(p => p.Key.FirstName[0] == clientFilter.FirstName[0]);
+               filteredDictionary = filteredDictionary.Where(p => p.Key.FirstName == clientFilter.FirstName);
 
             if (clientFilter.LastName != null)
-                filteredDictionary = filteredDictionary.Where(p => p.Key.LastName[0] == clientFilter.LastName[0]);
+                filteredDictionary = filteredDictionary.Where(p => p.Key.LastName == clientFilter.LastName);
 
             if (clientFilter.PhoneNumber != null)
                 filteredDictionary = filteredDictionary.Where(p => p.Key.PhoneNumber == clientFilter.PhoneNumber);
