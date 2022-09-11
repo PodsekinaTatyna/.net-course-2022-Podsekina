@@ -32,24 +32,24 @@ namespace Services
 
         public Dictionary<Client, List<Account>> GetClients(ClientFilter clientFilter)
         {
-            Dictionary<Client, List<Account>> filteredDictionary = new Dictionary<Client, List<Account>>();
+            var filteredDictionary = _clientStorage._dictionaryClient.Select(p => p);
 
             if (clientFilter.FirstName != null)
-               filteredDictionary = _clientStorage._dictionaryClient.Where(p => p.Key.FirstName == clientFilter.FirstName).ToDictionary(kvp => kvp.Key, kvp =>kvp.Value);
+               filteredDictionary = filteredDictionary.Where(p => p.Key.FirstName[0] == clientFilter.FirstName[0]);
 
             if (clientFilter.LastName != null)
-                filteredDictionary = _clientStorage._dictionaryClient.Where(p => p.Key.LastName == clientFilter.LastName).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                filteredDictionary = filteredDictionary.Where(p => p.Key.LastName[0] == clientFilter.LastName[0]);
 
             if (clientFilter.PhoneNumber != null)
-                filteredDictionary = _clientStorage._dictionaryClient.Where(p => p.Key.PhoneNumber == clientFilter.PhoneNumber).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                filteredDictionary = filteredDictionary.Where(p => p.Key.PhoneNumber == clientFilter.PhoneNumber);
             
             if (clientFilter.StartDate != default)
-                filteredDictionary = _clientStorage._dictionaryClient.Where(p => p.Key.DateOfBirth == clientFilter.StartDate).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                filteredDictionary = filteredDictionary.Where(p => p.Key.DateOfBirth == clientFilter.StartDate);
             
             if (clientFilter.EndDate != default)
-                filteredDictionary = _clientStorage._dictionaryClient.Where(p => p.Key.DateOfBirth.Date == clientFilter.EndDate.Date).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                filteredDictionary = filteredDictionary.Where(p => p.Key.DateOfBirth.Date == clientFilter.EndDate.Date);
 
-            return filteredDictionary;
+            return filteredDictionary.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         public void AddNewAccount(Client client)

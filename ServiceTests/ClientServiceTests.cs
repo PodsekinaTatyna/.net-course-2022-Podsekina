@@ -211,7 +211,7 @@ namespace ServiceTests
             TestDataGenerator testDataGenerator = new TestDataGenerator();
             ClientFilter clientFilter = new ClientFilter();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 100; i++)
             {
                 clientStorage.Add(testDataGenerator.GetFakeDataClient().Generate());
             }
