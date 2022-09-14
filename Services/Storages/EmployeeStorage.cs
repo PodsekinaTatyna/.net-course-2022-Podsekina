@@ -23,17 +23,15 @@ namespace Services.Storages
 
         public void Update(Employee employee)
         {
-            int employeeIndex = _employeeList.IndexOf(_employeeList.First(p => p.PassportID == employee.PassportID));
+            var oldemployee = _employeeList.First(p => p.PassportID == employee.PassportID);
 
-            _employeeList[employeeIndex] = new Employee()
-            {
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                PassportID = employee.PassportID,
-                DateOfBirth = employee.DateOfBirth,
-                Salary = employee.Salary,
-                Contract = employee.Contract
-            };
+            oldemployee.FirstName = employee.FirstName;
+            oldemployee.LastName = employee.LastName;
+            oldemployee.PassportID = employee.PassportID;
+            oldemployee.DateOfBirth = employee.DateOfBirth;
+            oldemployee.Salary = employee.Salary;
+            oldemployee.Contract = employee.Contract;
+           
         }
     }
 }

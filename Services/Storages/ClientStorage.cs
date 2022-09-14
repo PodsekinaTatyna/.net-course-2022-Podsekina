@@ -42,18 +42,12 @@ namespace Services.Storages
         public void Update(Client client)
         {
             var oldClient = Data.Keys.First(p => p.PassportID == client.PassportID);
-            
-            client = new Client
-            {
-                FirstName = oldClient.FirstName,
-                LastName = oldClient.LastName,
-                PassportID = oldClient.PassportID,
-                PhoneNumber = oldClient.PhoneNumber,
-                DateOfBirth = oldClient.DateOfBirth
-            };
 
-            Delete(oldClient);
-            Add(client);
+            oldClient.FirstName = client.FirstName;
+            oldClient.LastName = client.LastName;
+            oldClient.PassportID = client.PassportID;
+            oldClient.PhoneNumber = client.PhoneNumber;
+            oldClient.DateOfBirth = client.DateOfBirth;
 
         }
 
@@ -69,17 +63,15 @@ namespace Services.Storages
 
         public void UpdateAccount(Client client, Account account)
         {
-            int accountIndex = Data[client].IndexOf(Data[client].First((p => p.Currency.Name == account.Currency.Name)));
+            var oldAccount = Data[client].First(p => p.Currency.Name == account.Currency.Name);
 
-            Data[client][accountIndex] = new Account
+            oldAccount.Currency = new Curreny
             {
-                Currency = new Curreny
-                {
-                    Code = account.Currency.Code,
-                    Name = account.Currency.Name,
-                },
-                Amount = account.Amount
+                Code = account.Currency.Code,
+                Name = account.Currency.Name,
             };
+            oldAccount.Amount = account.Amount;
+
         }
     }
 

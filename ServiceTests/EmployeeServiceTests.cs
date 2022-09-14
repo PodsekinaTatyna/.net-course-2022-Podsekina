@@ -139,7 +139,7 @@ namespace ServiceTests
                 employeeService.UpdateEmployee(existsEmployee);
 
                 Assert.Throws<KeyNotFoundException>(() => employeeService.UpdateEmployee(noExistsEmployee));
-                Assert.NotSame(existsEmployee, employeeStorage._employeeList.First(p => p.PassportID == existsEmployee.PassportID));
+                Assert.Same(existsEmployee, employeeStorage._employeeList.First(p => p.PassportID == existsEmployee.PassportID));
             }
             catch (Exception ex)
             {

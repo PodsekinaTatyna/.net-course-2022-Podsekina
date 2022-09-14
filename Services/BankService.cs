@@ -39,10 +39,7 @@ namespace Services
 
         public bool IsPersonInBlackList<T>(T person) where T : Person
         {
-            if (blackList.FirstOrDefault(p => p.PassportID == person.PassportID) == null)
-                return false;
-
-            return true;
+            return blackList.Contains(person);
         }
     }
 }

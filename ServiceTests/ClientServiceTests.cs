@@ -233,7 +233,7 @@ namespace ServiceTests
                 clientService.UpdateClient(existsClient);
 
                 Assert.Throws<KeyNotFoundException>(() => clientService.UpdateClient(noExistsClient));
-                Assert.NotSame(existsClient, clientStorage.Data.Keys.First(p => p.PassportID == existsClient.PassportID));
+                Assert.Same(existsClient, clientStorage.Data.Keys.First(p => p.PassportID == existsClient.PassportID));
             }
             catch (Exception ex)
             {
