@@ -1,5 +1,6 @@
 ﻿using Models;
 using Services.Exceptions;
+using Services.Storages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,11 @@ namespace Services
 {
     public class EmployeeService
     {
-        private List<Employee> listEmployee = new List<Employee>();
+        private EmployeeStorage _employeeStorage { get; set; }
+        public EmployeeService(EmployeeStorage employeeStorage)
+        {
+            _employeeStorage = employeeStorage;
+        }
 
         public void AddNewEmployee(Employee employee)
         {
@@ -20,7 +25,24 @@ namespace Services
             if (employee.PassportID == 0)
                 throw new NoPassportDataException("Паспортные данные обязательно должны быть введены");
 
-            listEmployee.Add(employee);
+            _employeeStorage.Add(employee);
         }
+
+        public void DeleteEmployee(Employee employee)
+        {
+            if (!_employeeStorage._employeeList.Contains(employee))
+                throw new KeyNotFoundException("В базе нет такого сотрудника");
+
+            _employeeStorage.Delete(employee);
+        }
+
+        public void UpdateEmployee(Employee employee)
+        {
+            if (!_employeeStorage._employeeList.Contains(employee))
+                throw new KeyNotFoundException("В базе нет такого сотрудника");
+    
+            _employeeStorage.Update(employee);
+        }
+
     }
 }

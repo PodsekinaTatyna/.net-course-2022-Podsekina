@@ -12,6 +12,7 @@ namespace Models
         public string LastName { get; set; }
         public int PassportID { get; set; }
         public DateTime DateOfBirth { get; set; }
+        public int Bonus { get; set; }
 
     }
 }

@@ -9,6 +9,8 @@ namespace Services
 {
     public class BankService
     {
+        private List<Person> blackList = new List<Person>();
+
         public int BankOwnersSalaries(decimal profit, decimal expenses, int numberOfOwners)
         {
             return (int)((profit - expenses) / numberOfOwners);
@@ -25,5 +27,19 @@ namespace Services
             };
         }
 
+        public void AddBonus(Person person)
+        {
+            person.Bonus++;
+        }
+
+        public void AddToBlackList<T>(T person) where T : Person
+        {
+            blackList.Add(person);
+        }
+
+        public bool IsPersonInBlackList<T>(T person) where T : Person
+        {
+            return blackList.Contains(person);
+        }
     }
 }
