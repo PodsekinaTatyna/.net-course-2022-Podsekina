@@ -1,4 +1,5 @@
 ﻿using Models;
+using ModelsDb;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,31 +8,28 @@ using System.Threading.Tasks;
 
 namespace Services.Storages
 {
-    public class EmployeeStorage : IStorage<Employee>
+    public class EmployeeStorage : IStorage<EmployeeDb>
     {
-        public readonly List<Employee> _employeeList = new List<Employee>();
+        private BankContext data = new BankContext();
 
-        public void Add(Employee employee)
+        public BankContext Data => data;
+
+        public void Add(EmployeeDb employee)
         {
-            _employeeList.Add(employee);
+            Data.Employees.Add(employee);
+            Data.SaveChanges();
         }
 
-        public void Delete(Employee employee)
+        public void Delete(EmployeeDb employee)
         {
-            _employeeList.Remove(employee);
+            Data.Employees.Remove(employee);
+            Data.SaveChanges();
         }
 
-        public void Update(Employee employee)
+        public void Update(EmployeeDb employee)
         {
-            var oldemployee = _employeeList.First(p => p.PassportID == employee.PassportID);
-
-            oldemployee.FirstName = employee.FirstName;
-            oldemployee.LastName = employee.LastName;
-            oldemployee.PassportID = employee.PassportID;
-            oldemployee.DateOfBirth = employee.DateOfBirth;
-            oldemployee.Salary = employee.Salary;
-            oldemployee.Contract = employee.Contract;
-           
+            Data.Employees.Update(employee);
+            Data.SaveChanges();
         }
     }
 }
