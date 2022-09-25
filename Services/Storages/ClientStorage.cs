@@ -1,77 +1,57 @@
-﻿using Bogus.DataSets;
-using Models;
-using Services.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Models;
+using ModelsDb;
 
 namespace Services.Storages
 {
     public class ClientStorage : IClientStorage
     {
-        private Dictionary<Client, List<Account>> data = new Dictionary<Client, List<Account>>();
+        private BankContext data = new BankContext();
 
-        public Dictionary<Client, List<Account>> Data => data;
+        public BankContext Data => data;
 
-        public void Add(Client client)
+
+        public void Add(ClientDb client)
         {
-            Data.Add(
-                client,
-                new List<Account>
-                {
-                    new Account
-                    {
-                        Currency = new Curreny
-                        {
-                            Code = 840,
-                            Name = "USD",
-                        },
-                        Amount = 0
-                    }
-                });
+          
+            Data.Clients.Add(client);
+            Data.Accounts.Add(
+              new AccountDb
+              {
+                  Client = client,
+                  Currency = "USD",
+                  Amount = 0
+              });
+            Data.SaveChanges();
         }
 
-        public void Delete(Client client)
+        public void Delete(ClientDb client)
         {
-            Data.Remove(client);
+            Data.Clients.Remove(client);
+            Data.SaveChanges();
         }
 
-        public void Update(Client client)
+        public void Update(ClientDb client)
         {
-            var oldClient = Data.Keys.First(p => p.PassportID == client.PassportID);
-
-            oldClient.FirstName = client.FirstName;
-            oldClient.LastName = client.LastName;
-            oldClient.PassportID = client.PassportID;
-            oldClient.PhoneNumber = client.PhoneNumber;
-            oldClient.DateOfBirth = client.DateOfBirth;
-
+            Data.Clients.Update(client);
+            Data.SaveChanges();
         }
 
-        public void AddAccount(Client client, Account account)
+        public void AddAccount(AccountDb account)
         {
-            Data[client].Add(account);
+            Data.Accounts.Add(account);
+            Data.SaveChanges();
         }
 
-        public void DeleteAccount(Client client, Account account)
+        public void DeleteAccount(AccountDb account)
         {
-            Data[client].Remove(account);
+            Data.Accounts.Remove(account);
+            Data.SaveChanges();
         }
 
-        public void UpdateAccount(Client client, Account account)
+        public void UpdateAccount(AccountDb account)
         {
-            var oldAccount = Data[client].First(p => p.Currency.Name == account.Currency.Name);
-
-            oldAccount.Currency = new Curreny
-            {
-                Code = account.Currency.Code,
-                Name = account.Currency.Name,
-            };
-            oldAccount.Amount = account.Amount;
-
+            Data.Accounts.Update(account);
+            Data.SaveChanges();
         }
     }
 

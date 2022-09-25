@@ -1,27 +1,26 @@
 ﻿using Models;
+using ModelsDb;
 using Services;
 using Services.Filters;
 using Services.Exceptions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Services.Storages;
 using System.Security.Principal;
+
 
 namespace ServiceTests
 {
     public class ClientServiceTests
     {
+
         [Fact]
         public void AddNewClientLimit18YearsExceptionTest()
         {
             // Arrange
             ClientService clientService = new ClientService(new ClientStorage());
 
-            Client client = new Client()
+            ClientDb client = new ClientDb()
             {
                 FirstName = "Игорь",
                 LastName = "Петоров",
@@ -53,7 +52,7 @@ namespace ServiceTests
             // Arrange
             ClientService clientService = new ClientService(new ClientStorage());
 
-            Client client = new Client()
+            ClientDb client = new ClientDb()
             {
                 FirstName = "Игорь",
                 LastName = "Петоров",
@@ -83,17 +82,13 @@ namespace ServiceTests
         {
             // Arrange
             ClientService clientService = new ClientService(new ClientStorage());
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            Client oldClient = new Client()
+            ClientDb oldClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            ClientDb newClient = new ClientDb()
             {
-                FirstName = "Игорь",
-                LastName = "Петоров",
-                PassportID = 12345,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Client newClient = new Client()
-            {
+                Id = oldClient.Id,
                 FirstName = oldClient.FirstName,
                 LastName = oldClient.LastName,
                 PassportID = oldClient.PassportID,
@@ -130,35 +125,35 @@ namespace ServiceTests
             TestDataGenerator testDataGenerator = new TestDataGenerator();
             ClientFilter clientFilter = new ClientFilter();
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10; i++)
             {
                 clientStorage.Add(testDataGenerator.GetFakeDataClient().Generate());
             }
 
-            Client client = clientStorage.Data.Keys.First();
+            ClientDb client = clientStorage.Data.Clients.FirstOrDefault();
              
             // Act/Assert
             clientFilter.FirstName = client.FirstName;
             clientFilter.LastName = client.LastName;
             clientFilter.PhoneNumber = client.PhoneNumber;
 
-            Assert.Equal(clientStorage.Data[client], clientService.GetClients(clientFilter)[client]);
+            Assert.NotNull(clientService.GetClients(clientFilter));
 
             clientFilter.FirstName = null;
             clientFilter.LastName = null;
             clientFilter.PhoneNumber = null;
 
-            clientFilter.StartDate = clientStorage.Data.Min(p => p.Key.DateOfBirth);
+            clientFilter.StartDate = clientStorage.Data.Clients.Min(p => p.DateOfBirth);
 
             Assert.NotNull(clientService.GetClients(clientFilter));
             clientFilter.StartDate = default;
 
-            clientFilter.EndDate = clientStorage.Data.Max(p => p.Key.DateOfBirth);
+            clientFilter.EndDate = clientStorage.Data.Clients.Max(p => p.DateOfBirth);
 
             Assert.NotNull(clientService.GetClients(clientFilter));
             clientFilter.StartDate = default;
 
-            var averageAge = clientStorage.Data.Average(p => p.Key.DateOfBirth.Year);
+            var averageAge = clientStorage.Data.Clients.Average(p => p.DateOfBirth.Year);
 
         }
 
@@ -168,23 +163,11 @@ namespace ServiceTests
             // Arrange
             ClientStorage clientStorage = new ClientStorage();
             ClientService clientService = new ClientService(clientStorage);
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            Client existsClient = new Client()
-            {
-                FirstName = "Игорь",
-                LastName = "Петоров",
-                PassportID = 12345,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Client noExistsClient = new Client()
-            {
-                FirstName = "Максим",
-                LastName = "Петоров",
-                PassportID = 23445,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
+            ClientDb existsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            ClientDb noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
 
             // Act/Assert
             try
@@ -193,7 +176,7 @@ namespace ServiceTests
                 Assert.Throws<KeyNotFoundException>(() => clientService.DeleteClient(noExistsClient));
 
                 clientService.DeleteClient(existsClient);
-                Assert.DoesNotContain(existsClient, clientStorage.Data.Keys);
+                Assert.DoesNotContain(existsClient, clientStorage.Data.Clients);
             }
             catch (Exception ex)
             {
@@ -208,23 +191,11 @@ namespace ServiceTests
             // Arrange
             ClientStorage clientStorage = new ClientStorage();
             ClientService clientService = new ClientService(clientStorage);
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            Client existsClient = new Client()
-            {
-                FirstName = "Игорь",
-                LastName = "Петоров",
-                PassportID = 12345,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Client noExistsClient = new Client()
-            {
-                FirstName = "Максим",
-                LastName = "Петоров",
-                PassportID = 23445,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
+            ClientDb existsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            ClientDb noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
 
             // Act/Assert
             try
@@ -233,7 +204,7 @@ namespace ServiceTests
                 clientService.UpdateClient(existsClient);
 
                 Assert.Throws<KeyNotFoundException>(() => clientService.UpdateClient(noExistsClient));
-                Assert.Same(existsClient, clientStorage.Data.Keys.First(p => p.PassportID == existsClient.PassportID));
+                Assert.Same(existsClient, clientStorage.Data.Clients.First(p => p.PassportID == existsClient.PassportID));
             }
             catch (Exception ex)
             {
@@ -248,30 +219,16 @@ namespace ServiceTests
             // Arrange
             ClientStorage clientStorage = new ClientStorage();
             ClientService clientService = new ClientService(clientStorage);
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            Client client = new Client()
+            ClientDb client = testDataGenerator.GetFakeDataClient().Generate();
+
+            ClientDb noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            AccountDb newAccount = new AccountDb
             {
-                FirstName = "Игорь",
-                LastName = "Петоров",
-                PassportID = 12345,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Client noExistsClient = new Client()
-            {
-                FirstName = "Максим",
-                LastName = "Петоров",
-                PassportID = 23445,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Account newAccount = new Account
-            {
-                Currency = new Curreny
-                {
-                    Code = 978,
-                    Name = "EUR",
-                },
+                clientId = client.Id,
+                Currency = "EUR",
                 Amount = 0
             };
 
@@ -279,11 +236,11 @@ namespace ServiceTests
             try
             {
                 clientService.AddNewClient(client);
-                clientService.AddNewAccount(client, newAccount);
+                clientService.AddNewAccount(client.Id, newAccount);
 
-                Assert.Throws<KeyNotFoundException>(() => clientService.AddNewAccount(noExistsClient, newAccount));
-                Assert.Throws<AccountAlreadyExistsException>(() => clientService.AddNewAccount(client, newAccount));
-                Assert.Contains(newAccount, clientStorage.Data[client]);
+                Assert.Throws<KeyNotFoundException>(() => clientService.AddNewAccount(noExistsClient.Id, newAccount));
+                Assert.Throws<AccountAlreadyExistsException>(() => clientService.AddNewAccount(client.Id, newAccount));
+                Assert.NotNull(clientStorage.Data.Accounts.FirstOrDefault(p => p.clientId == newAccount.clientId && p.Currency == newAccount.Currency));
             }
             catch (Exception ex)
             {
@@ -298,39 +255,17 @@ namespace ServiceTests
             // Arrange
             ClientStorage clientStorage = new ClientStorage();
             ClientService clientService = new ClientService(clientStorage);
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            Client existsClient = new Client()
+            ClientDb existsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            ClientDb noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            
+            AccountDb noExistsAccount = new AccountDb
             {
-                FirstName = "Игорь",
-                LastName = "Петоров",
-                PassportID = 12345,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Client noExistsClient = new Client()
-            {
-                FirstName = "Максим",
-                LastName = "Петоров",
-                PassportID = 23445,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Account existsAccount = new Account
-            {
-                Currency = new Curreny
-                {
-                    Code = 840,
-                    Name = "USD",
-                },
-                Amount = 0
-            };
-            Account noExistsAccount = new Account
-            {
-                Currency = new Curreny
-                {
-                    Code = 978,
-                    Name = "EUR",
-                },
+                clientId = existsClient.Id,
+                Currency = "EUR",
                 Amount = 0
             };
 
@@ -338,11 +273,14 @@ namespace ServiceTests
             try
             {
                 clientService.AddNewClient(existsClient);
-                clientService.UpdateAccount(existsClient, existsAccount);
 
-                Assert.Throws<KeyNotFoundException>(() => clientService.UpdateAccount(noExistsClient,existsAccount));
-                Assert.Throws<NullReferenceException>(() => clientService.UpdateAccount(existsClient, noExistsAccount));
-                Assert.NotSame(existsAccount, clientStorage.Data[existsClient].First((p => p.Currency.Name == existsAccount.Currency.Name)));
+                var existsAccount = existsClient.Accounts.First(p => p.Currency == "USD");
+
+                clientService.UpdateAccount(existsClient.Id, existsAccount);
+
+                Assert.Throws<KeyNotFoundException>(() => clientService.UpdateAccount(noExistsClient.Id,existsAccount));
+                Assert.Throws<NullReferenceException>(() => clientService.UpdateAccount(existsClient.Id, noExistsAccount));
+                Assert.NotSame(existsAccount, clientStorage.Data.Accounts.First((p => p.Currency == existsAccount.Currency)));
             }
             catch (Exception ex)
             {
@@ -357,39 +295,16 @@ namespace ServiceTests
             // Arrange
             ClientStorage clientStorage = new ClientStorage();
             ClientService clientService = new ClientService(clientStorage);
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            Client existsClient = new Client()
+            ClientDb existsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            ClientDb noExistsClient = testDataGenerator.GetFakeDataClient().Generate();
+
+            AccountDb noExistsAccount = new AccountDb
             {
-                FirstName = "Игорь",
-                LastName = "Петоров",
-                PassportID = 12345,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Client noExistsClient = new Client()
-            {
-                FirstName = "Максим",
-                LastName = "Петоров",
-                PassportID = 23445,
-                DateOfBirth = new DateTime(2000, 2, 2),
-                PhoneNumber = "123456789"
-            };
-            Account existsAccount = new Account
-            {
-                Currency = new Curreny
-                {
-                    Code = 840,
-                    Name = "USD",
-                },
-                Amount = 0
-            };
-            Account noExistsAccount = new Account
-            {
-                Currency = new Curreny
-                {
-                    Code = 978,
-                    Name = "EUR",
-                },
+                clientId = existsClient.Id,
+                Currency = "EUR",
                 Amount = 0
             };
 
@@ -397,11 +312,13 @@ namespace ServiceTests
             try
             {
                 clientService.AddNewClient(existsClient);
-                Assert.Throws<KeyNotFoundException>(() => clientService.DeleteAccount(noExistsClient, existsAccount));
-                Assert.Throws<NullReferenceException>(() => clientService.DeleteAccount(existsClient, noExistsAccount));
+                var existsAccount = existsClient.Accounts.First(p => p.Currency == "USD");
 
-                clientService.DeleteAccount(existsClient, existsAccount);
-                Assert.DoesNotContain(existsAccount, clientStorage.Data[existsClient]);
+                Assert.Throws<KeyNotFoundException>(() => clientService.DeleteAccount(noExistsClient.Id, existsAccount));
+                Assert.Throws<NullReferenceException>(() => clientService.DeleteAccount(existsClient.Id, noExistsAccount));
+
+                clientService.DeleteAccount(existsClient.Id, existsAccount);
+                Assert.Null(clientStorage.Data.Accounts.FirstOrDefault(p => p.clientId == existsAccount.clientId && p.Currency == existsAccount.Currency));
             }
             catch (Exception ex)
             {

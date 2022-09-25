@@ -8,68 +8,72 @@ using Bogus;
 using Bogus.DataSets;
 using System.Reflection.Emit;
 using System.Dynamic;
+using ModelsDb;
 
 namespace Services
 {
     public class TestDataGenerator
     {
 
-        public Faker<Client> GetFakeDataClient()
+        public Faker<ClientDb> GetFakeDataClient()
         {
-            var generator = new Faker<Client>("ru")
+            var generator = new Faker<ClientDb>("ru")
                 .StrictMode(true)
+                .RuleFor(u => u.Id, f => Guid.NewGuid())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
                 .RuleFor(u => u.LastName, f => f.Name.LastName())
                 .RuleFor(u => u.PassportID, f => f.Random.Int(10000, 100000))
-                .RuleFor(u => u.DateOfBirth, f => f.Date.Past(80))
+
                 .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())
-                .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10));
+                .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10))
+                .RuleFor(u => u.Accounts, f => null)
+                .RuleFor(u => u.DateOfBirth, f => f.Date.Between(DateTime.Parse("01.01.1940"), DateTime.Parse("01.01.2002")));
             return generator;
 
         }
 
-        public Faker<Employee> GetFakeDataEmployee()
+        public Faker<EmployeeDb> GetFakeDataEmployee()
         {
-            var generator = new Faker<Employee>("ru")
+            var generator = new Faker<EmployeeDb>("ru")
                 .StrictMode(true)
+                .RuleFor(u => u.Id, f => Guid.NewGuid())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
                 .RuleFor(u => u.LastName, f => f.Name.LastName())
                 .RuleFor(u => u.PassportID, f => f.Random.Int(10000, 100000))
-                .RuleFor(u => u.DateOfBirth, f => f.Date.Past(80))
+                .RuleFor(u => u.DateOfBirth, f => f.Date.Between(DateTime.Parse("01.01.1940"), DateTime.Parse("01.01.2002")))
                 .RuleFor(u => u.Contract, (f, u) => "ID: " + u.PassportID + 
                                                     "\nFull Name: " + u.FirstName + " " + u.LastName + 
                                                     "\nDate of Birth: " + u.DateOfBirth.ToString("D"))
                 .RuleFor(u => u.Salary, f => f.Finance.Random.Int(1000,5000))
-                       .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10)); ;
+                .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10)); ;
 
             return generator;
 
         }
 
-      
-
-        public List<Client> GetClientsList()
+ 
+        public List<ClientDb> GetClientsList()
         {
             var clientList = GetFakeDataClient().Generate(1000);
 
             return clientList;
         }
 
-        public Dictionary<string, Client> GetClientsDictionary()
+        public Dictionary<string, ClientDb> GetClientsDictionary()
         {
-            Dictionary<string, Client> clientDictionary = new Dictionary<string, Client>();
+            Dictionary<string, ClientDb> clientDictionary = new Dictionary<string, ClientDb>();
 
 
             for (int i = 0; i < 1000; i++)
             {
-                Client client = GetFakeDataClient().Generate();
+                ClientDb client = GetFakeDataClient().Generate();
                 clientDictionary.Add(client.PhoneNumber, client);
             }
 
             return clientDictionary;
         }
 
-        public List<Employee> GetEmployeesList()
+        public List<EmployeeDb> GetEmployeesList()
         {
             var employeeList = GetFakeDataEmployee().Generate(1000);        
 
