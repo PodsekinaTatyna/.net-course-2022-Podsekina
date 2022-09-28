@@ -8,28 +8,31 @@ using System.Threading.Tasks;
 
 namespace Services.Storages
 {
-    public class EmployeeStorage : IStorage<EmployeeDb>
+    public class EmployeeStorage : IStorage<Employee>
     {
-        private BankContext data = new BankContext();
+        private List<Employee> data = new List<Employee>();
 
-        public BankContext Data => data;
+        public List<Employee> Data => data;
 
-        public void Add(EmployeeDb employee)
+        public void Add(Employee employee)
         {
-            Data.Employees.Add(employee);
-            Data.SaveChanges();
+            Data.Add(employee);
         }
 
-        public void Delete(EmployeeDb employee)
+        public void Delete(Employee employee)
         {
-            Data.Employees.Remove(employee);
-            Data.SaveChanges();
+            Data.Remove(employee);
         }
 
-        public void Update(EmployeeDb employee)
+        public void Update(Employee employee)
         {
-            Data.Employees.Update(employee);
-            Data.SaveChanges();
+            var oldemployee = Data.First(p => p.PassportID == employee.PassportID);
+
+            oldemployee.FirstName = employee.FirstName;
+            oldemployee.LastName = employee.LastName;
+            oldemployee.PassportID = employee.PassportID;
+            oldemployee.DateOfBirth = employee.DateOfBirth;
+
         }
     }
 }

@@ -5,55 +5,67 @@ namespace Services.Storages
 {
     public class ClientStorage : IClientStorage
     {
-        private BankContext data = new BankContext();
+        private Dictionary<Client, List<Account>> data = new Dictionary<Client, List<Account>>();
 
-        public BankContext Data => data;
+        public Dictionary<Client, List<Account>> Data => data;
 
-
-        public void Add(ClientDb client)
+        public void Add(Client client)
         {
-          
-            Data.Clients.Add(client);
-            Data.Accounts.Add(
-              new AccountDb
-              {
-                  Client = client,
-                  Currency = "USD",
-                  Amount = 0
-              });
-            Data.SaveChanges();
+            Data.Add(
+                client,
+                new List<Account>
+                {
+                    new Account
+                    {
+                        Currency = new Curreny
+                        {
+                            Code = 840,
+                            Name = "USD",
+                        },
+                        Amount = 0
+                    }
+                });
         }
 
-        public void Delete(ClientDb client)
+        public void Delete(Client client)
         {
-            Data.Clients.Remove(client);
-            Data.SaveChanges();
+            Data.Remove(client);
         }
 
-        public void Update(ClientDb client)
+        public void Update(Client client)
         {
-            Data.Clients.Update(client);
-            Data.SaveChanges();
+            var oldClient = Data.Keys.First(p => p.PassportID == client.PassportID);
+
+            oldClient.FirstName = client.FirstName;
+            oldClient.LastName = client.LastName;
+            oldClient.PassportID = client.PassportID;
+            oldClient.PhoneNumber = client.PhoneNumber;
+            oldClient.DateOfBirth = client.DateOfBirth;
+
         }
 
-        public void AddAccount(AccountDb account)
+        public void AddAccount(Client client, Account account)
         {
-            Data.Accounts.Add(account);
-            Data.SaveChanges();
+            Data[client].Add(account);
         }
 
-        public void DeleteAccount(AccountDb account)
+        public void DeleteAccount(Client client, Account account)
         {
-            Data.Accounts.Remove(account);
-            Data.SaveChanges();
+            Data[client].Remove(account);
         }
 
-        public void UpdateAccount(AccountDb account)
+        public void UpdateAccount(Client client, Account account)
         {
-            Data.Accounts.Update(account);
-            Data.SaveChanges();
+            var oldAccount = Data[client].First(p => p.Currency.Name == account.Currency.Name);
+
+            oldAccount.Currency = new Curreny
+            {
+                Code = account.Currency.Code,
+                Name = account.Currency.Name,
+            };
+            oldAccount.Amount = account.Amount;
+
         }
+
     }
-
-
 }

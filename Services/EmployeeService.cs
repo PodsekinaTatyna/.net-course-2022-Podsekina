@@ -8,61 +8,103 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Services
 {
     public class EmployeeService
     {
-        private EmployeeStorage _employeeStorage { get; set; }
-        public EmployeeService(EmployeeStorage employeeStorage)
+        public BankContext bankContext { get; set; }
+
+        public EmployeeService()
         {
-            _employeeStorage = employeeStorage;
+            bankContext = new BankContext();
         }
 
-        public void AddNewEmployee(EmployeeDb employee)
+        public void AddNewEmployee(Employee employee)
         {
+            var employeeDb = new EmployeeDb
+            {
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                PassportID = employee.PassportID,
+                DateOfBirth = employee.DateOfBirth,
+                Bonus = employee.Bonus,
+                Salary = employee.Salary,
+                Contract = employee.Contract
+            }; 
+
             if ((DateTime.Now - employee.DateOfBirth).Days < 18)
                 throw new Limit18YearsException("Сотрудник не может быть моложе 18 лет");
 
             if (employee.PassportID == 0)
                 throw new NoPassportDataException("Паспортные данные обязательно должны быть введены");
+            bankContext.Employees.Add(employeeDb);
+            bankContext.SaveChanges();
 
-            _employeeStorage.Add(employee);
         }
 
-        public void DeleteEmployee(EmployeeDb employee)
+        public void DeleteEmployee(Employee employee)
         {
-            if (!_employeeStorage.Data.Employees.Contains(employee))
+            var employeeDb = bankContext.Employees.FirstOrDefault(p => p.Id == employee.Id);
+
+            if (employeeDb == null)
                 throw new KeyNotFoundException("В базе нет такого сотрудника");
 
-            _employeeStorage.Delete(employee);
+            bankContext.Employees.Remove(employeeDb);
+            bankContext.SaveChanges();
+
         }
 
-        public void UpdateEmployee(EmployeeDb employee)
+        public void UpdateEmployee(Employee employee)
         {
-            if (!_employeeStorage.Data.Employees.Contains(employee))
+            var employeeDb = bankContext.Employees.FirstOrDefault(p => p.Id == employee.Id);
+
+            if (employeeDb == null)
                 throw new KeyNotFoundException("В базе нет такого сотрудника");
-    
-            _employeeStorage.Update(employee);
+
+            bankContext.Employees.Update(employeeDb);
+            bankContext.SaveChanges();
+
         }
 
-        public List<EmployeeDb> GetEmployees(EmployeeFilter employeeFilter)
+        public List<Employee> GetEmployees(EmployeeFilter employeeFilter, int page, int limit)
         {
-            var filteredDictionary = _employeeStorage.Data.Employees.Select(p => p);
+            var query = bankContext.Employees.Select(p => p);
 
             if (employeeFilter.FirstName != null)
-                filteredDictionary = filteredDictionary.Where(p => p.FirstName == employeeFilter.FirstName);
+                query = query.Where(p => p.FirstName == employeeFilter.FirstName);
 
             if (employeeFilter.LastName != null)
-                filteredDictionary = filteredDictionary.Where(p => p.LastName == employeeFilter.LastName);
+                query = query.Where(p => p.LastName == employeeFilter.LastName);
 
             if (employeeFilter.StartDate != default)
-                filteredDictionary = filteredDictionary.Where(p => p.DateOfBirth == employeeFilter.StartDate);
+                query = query.Where(p => p.DateOfBirth == employeeFilter.StartDate);
 
             if (employeeFilter.EndDate != default)
-                filteredDictionary = filteredDictionary.Where(p => p.DateOfBirth == employeeFilter.EndDate);
+                query = query.Where(p => p.DateOfBirth == employeeFilter.EndDate);
 
-            return filteredDictionary.ToList();
+            var filteredList = query.Skip((page - 1) * limit).Take(limit).ToList();
+
+            var employeetList = new List<Employee>();
+
+            foreach (EmployeeDb employeeDb in filteredList)
+            {
+                employeetList.Add(new Employee
+                {
+                    Id = employeeDb.Id,
+                    FirstName = employeeDb.FirstName,
+                    LastName = employeeDb.LastName,
+                    PassportID = employeeDb.PassportID,
+                    DateOfBirth = employeeDb.DateOfBirth,
+                    Bonus = employeeDb.Bonus,
+                    Salary = employeeDb.Salary,
+                    Contract = employeeDb.Contract
+                });
+            }
+
+            return employeetList;
 
         }
 

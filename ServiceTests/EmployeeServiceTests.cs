@@ -18,8 +18,8 @@ namespace ServiceTests
         [Fact]
         public void AddNewEmployeeLimit18YearsExceptionTest()
         {
-            EmployeeService employeeService = new EmployeeService(new EmployeeStorage());
-            EmployeeDb employee = new EmployeeDb()
+            EmployeeService employeeService = new EmployeeService();
+            Employee employee = new Employee()
             {
                 FirstName = "Игорь",
                 LastName = "Петоров",
@@ -44,8 +44,8 @@ namespace ServiceTests
         [Fact]
         public void AddNewEmployeeNoPassportDataExceptionTest()
         {
-            EmployeeService employeeService = new EmployeeService(new EmployeeStorage());
-            EmployeeDb employee = new EmployeeDb()
+            EmployeeService employeeService = new EmployeeService();
+            Employee employee = new Employee()
             {
                 FirstName = "Игорь",
                 LastName = "Петоров",
@@ -70,13 +70,12 @@ namespace ServiceTests
         public void DeleteEmployee_KeyNotFoundException_EmployeeRemoved_Test()
         {
             // Arrange
-            EmployeeStorage employeeStorage = new EmployeeStorage();
-            EmployeeService employeeService = new EmployeeService(employeeStorage);
+            EmployeeService employeeService = new EmployeeService();
             TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            var existsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
+            Employee existsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
 
-            var noExistsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
+            Employee noExistsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
 
             // Act/Assert
             try
@@ -85,7 +84,7 @@ namespace ServiceTests
                 Assert.Throws<KeyNotFoundException>(() => employeeService.DeleteEmployee(noExistsEmployee));
 
                 employeeService.DeleteEmployee(existsEmployee);
-                Assert.DoesNotContain(existsEmployee, employeeStorage.Data.Employees);
+                Assert.Null(employeeService.bankContext.Employees.FirstOrDefault(p => p.Id == existsEmployee.Id));
             }
             catch (Exception ex)
             {
@@ -98,13 +97,12 @@ namespace ServiceTests
         public void UpdateEmployee_KeyNotFoundException_EmployeeUpdated_Test()
         {
             // Arrange
-            EmployeeStorage employeeStorage = new EmployeeStorage();
-            EmployeeService employeeService = new EmployeeService(employeeStorage);
+            EmployeeService employeeService = new EmployeeService();
             TestDataGenerator testDataGenerator = new TestDataGenerator();
 
-            var existsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
+            Employee existsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
 
-            var noExistsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
+            Employee noExistsEmployee = testDataGenerator.GetFakeDataEmployee().Generate();
 
             // Act/Assert
             try
@@ -113,7 +111,7 @@ namespace ServiceTests
                 employeeService.UpdateEmployee(existsEmployee);
 
                 Assert.Throws<KeyNotFoundException>(() => employeeService.UpdateEmployee(noExistsEmployee));
-                Assert.Same(existsEmployee, employeeStorage.Data.Employees.First(p => p.PassportID == existsEmployee.PassportID));
+                
             }
             catch (Exception ex)
             {
@@ -123,38 +121,40 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void GetEmployees_ByTheSpecifiedFilter_Test()
+        public void GetClients_ByTheSpecifiedFilter_Test()
         {
             // Arrange
-            EmployeeStorage employeeStorage = new EmployeeStorage();
-            EmployeeService employeeService = new EmployeeService(employeeStorage);
+            EmployeeService employeeService = new EmployeeService();
             TestDataGenerator testDataGenerator = new TestDataGenerator();
             EmployeeFilter employeeFilter = new EmployeeFilter();
+            Employee employee = new Employee();
 
             for (int i = 0; i < 10; i++)
             {
-                employeeService.AddNewEmployee(testDataGenerator.GetFakeDataEmployee().Generate());
-            }
+                employee = testDataGenerator.GetFakeDataEmployee().Generate();
+                employeeService.AddNewEmployee(employee);
+            };
 
-            EmployeeDb client = employeeStorage.Data.Employees.First();
+            int page = 1;
+            int limit = 10;
 
             // Act/Assert
-            employeeFilter.FirstName = client.FirstName;
-            employeeFilter.LastName = client.LastName;
+            employeeFilter.FirstName = employee.FirstName;
+            employeeFilter.LastName = employee.LastName;
 
-            Assert.NotNull(employeeService.GetEmployees(employeeFilter));
+            Assert.NotNull(employeeService.GetEmployees(employeeFilter, page, limit));
 
             employeeFilter.FirstName = null;
             employeeFilter.LastName = null;
+         
+            employeeFilter.StartDate = employeeService.bankContext.Clients.Min(p => p.DateOfBirth);
 
-            employeeFilter.StartDate = employeeStorage.Data.Employees.Min(p => p.DateOfBirth);
-
-            Assert.NotNull(employeeService.GetEmployees(employeeFilter));
+            Assert.NotNull(employeeService.GetEmployees(employeeFilter, page, limit));
             employeeFilter.StartDate = default;
 
-            employeeFilter.EndDate = employeeStorage.Data.Employees.Max(p => p.DateOfBirth);
+            employeeFilter.EndDate = employeeService.bankContext.Clients.Max(p => p.DateOfBirth);
 
-            Assert.NotNull(employeeService.GetEmployees(employeeFilter));
+            Assert.NotNull(employeeService.GetEmployees(employeeFilter, page, limit));
             employeeFilter.StartDate = default;
 
         }

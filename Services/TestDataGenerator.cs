@@ -15,9 +15,9 @@ namespace Services
     public class TestDataGenerator
     {
 
-        public Faker<ClientDb> GetFakeDataClient()
+        public Faker<Client> GetFakeDataClient()
         {
-            var generator = new Faker<ClientDb>("ru")
+            var generator = new Faker<Client>("ru")
                 .StrictMode(true)
                 .RuleFor(u => u.Id, f => Guid.NewGuid())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
@@ -26,15 +26,14 @@ namespace Services
 
                 .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())
                 .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10))
-                .RuleFor(u => u.Accounts, f => null)
                 .RuleFor(u => u.DateOfBirth, f => f.Date.Between(DateTime.Parse("01.01.1940"), DateTime.Parse("01.01.2002")));
             return generator;
 
         }
 
-        public Faker<EmployeeDb> GetFakeDataEmployee()
+        public Faker<Employee> GetFakeDataEmployee()
         {
-            var generator = new Faker<EmployeeDb>("ru")
+            var generator = new Faker<Employee>("ru")
                 .StrictMode(true)
                 .RuleFor(u => u.Id, f => Guid.NewGuid())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
@@ -52,28 +51,28 @@ namespace Services
         }
 
  
-        public List<ClientDb> GetClientsList()
+        public List<Client> GetClientsList()
         {
             var clientList = GetFakeDataClient().Generate(1000);
 
             return clientList;
         }
 
-        public Dictionary<string, ClientDb> GetClientsDictionary()
+        public Dictionary<string, Client> GetClientsDictionary()
         {
-            Dictionary<string, ClientDb> clientDictionary = new Dictionary<string, ClientDb>();
+            Dictionary<string, Client> clientDictionary = new Dictionary<string, Client>();
 
 
             for (int i = 0; i < 1000; i++)
             {
-                ClientDb client = GetFakeDataClient().Generate();
+                Client client = GetFakeDataClient().Generate();
                 clientDictionary.Add(client.PhoneNumber, client);
             }
 
             return clientDictionary;
         }
 
-        public List<EmployeeDb> GetEmployeesList()
+        public List<Employee> GetEmployeesList()
         {
             var employeeList = GetFakeDataEmployee().Generate(1000);        
 

@@ -2,6 +2,7 @@
 
 namespace ModelsDb
 {
+    [Table("employees")]
     public class EmployeeDb
     {
         [Column("id")]

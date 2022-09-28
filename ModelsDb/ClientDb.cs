@@ -2,7 +2,7 @@
 
 namespace ModelsDb
 {
-    [Table("client")]
+    [Table("clients")]
     public class ClientDb
     {
         [Column("id")]
