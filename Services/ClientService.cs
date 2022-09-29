@@ -91,19 +91,19 @@ namespace Services
             var query = bankContext.Clients.Select(p => p).AsNoTracking();
 
             if (clientFilter.FirstName != null)
-               query = query.Where(p => p.FirstName == clientFilter.FirstName).AsNoTracking();
+               query = query.Where(p => p.FirstName == clientFilter.FirstName);
 
             if (clientFilter.LastName != null)
-                query = query.Where(p => p.LastName == clientFilter.LastName).AsNoTracking();
+                query = query.Where(p => p.LastName == clientFilter.LastName);
 
             if (clientFilter.PhoneNumber != null)
-                query = query.Where(p => p.PhoneNumber == clientFilter.PhoneNumber).AsNoTracking();
+                query = query.Where(p => p.PhoneNumber == clientFilter.PhoneNumber);
             
             if (clientFilter.StartDate != default)
-                query = query.Where(p => p.DateOfBirth == clientFilter.StartDate).AsNoTracking();
+                query = query.Where(p => p.DateOfBirth == clientFilter.StartDate);
             
             if (clientFilter.EndDate != default)
-                query = query.Where(p => p.DateOfBirth == clientFilter.EndDate).AsNoTracking();
+                query = query.Where(p => p.DateOfBirth == clientFilter.EndDate);
 
             var filteredList = query.Skip((page - 1) * limit).Take(limit).ToList();
 
