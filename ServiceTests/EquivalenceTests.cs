@@ -27,9 +27,9 @@ namespace ServiceTests
             //Act
             var expectedAccount = accounDictionary[firstAccount.Key];
             var actualAccount = accounDictionary[client];
-           
+
             //Assert
-            Assert.Equal(expectedAccount,actualAccount);
+            Assert.Equal(expectedAccount, actualAccount);
         }
 
 
@@ -56,7 +56,7 @@ namespace ServiceTests
             var isNewEmployeeInList = employees.Contains(newEmployee);
 
             //Assert
-            Assert.Equal(firstEmployee,actualEmployee);
+            Assert.Equal(firstEmployee, actualEmployee);
         }
     }
 }

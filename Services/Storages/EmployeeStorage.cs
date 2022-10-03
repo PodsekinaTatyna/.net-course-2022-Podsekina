@@ -1,4 +1,5 @@
 ﻿using Models;
+using ModelsDb;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,29 +10,29 @@ namespace Services.Storages
 {
     public class EmployeeStorage : IStorage<Employee>
     {
-        public readonly List<Employee> _employeeList = new List<Employee>();
+        private List<Employee> data = new List<Employee>();
+
+        public List<Employee> Data => data;
 
         public void Add(Employee employee)
         {
-            _employeeList.Add(employee);
+            Data.Add(employee);
         }
 
         public void Delete(Employee employee)
         {
-            _employeeList.Remove(employee);
+            Data.Remove(employee);
         }
 
         public void Update(Employee employee)
         {
-            var oldemployee = _employeeList.First(p => p.PassportID == employee.PassportID);
+            var oldemployee = Data.First(p => p.PassportID == employee.PassportID);
 
             oldemployee.FirstName = employee.FirstName;
             oldemployee.LastName = employee.LastName;
             oldemployee.PassportID = employee.PassportID;
             oldemployee.DateOfBirth = employee.DateOfBirth;
-            oldemployee.Salary = employee.Salary;
-            oldemployee.Contract = employee.Contract;
-           
+
         }
     }
 }

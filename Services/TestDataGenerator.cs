@@ -8,6 +8,7 @@ using Bogus;
 using Bogus.DataSets;
 using System.Reflection.Emit;
 using System.Dynamic;
+using ModelsDb;
 
 namespace Services
 {
@@ -18,12 +19,14 @@ namespace Services
         {
             var generator = new Faker<Client>("ru")
                 .StrictMode(true)
+                .RuleFor(u => u.Id, f => Guid.NewGuid())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
                 .RuleFor(u => u.LastName, f => f.Name.LastName())
                 .RuleFor(u => u.PassportID, f => f.Random.Int(10000, 100000))
-                .RuleFor(u => u.DateOfBirth, f => f.Date.Past(80))
+
                 .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())
-                .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10));
+                .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10))
+                .RuleFor(u => u.DateOfBirth, f => f.Date.Between(DateTime.Parse("01.01.1940"), DateTime.Parse("01.01.2002")));
             return generator;
 
         }
@@ -32,22 +35,22 @@ namespace Services
         {
             var generator = new Faker<Employee>("ru")
                 .StrictMode(true)
+                .RuleFor(u => u.Id, f => Guid.NewGuid())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
                 .RuleFor(u => u.LastName, f => f.Name.LastName())
                 .RuleFor(u => u.PassportID, f => f.Random.Int(10000, 100000))
-                .RuleFor(u => u.DateOfBirth, f => f.Date.Past(80))
+                .RuleFor(u => u.DateOfBirth, f => f.Date.Between(DateTime.Parse("01.01.1940"), DateTime.Parse("01.01.2002")))
                 .RuleFor(u => u.Contract, (f, u) => "ID: " + u.PassportID + 
                                                     "\nFull Name: " + u.FirstName + " " + u.LastName + 
                                                     "\nDate of Birth: " + u.DateOfBirth.ToString("D"))
                 .RuleFor(u => u.Salary, f => f.Finance.Random.Int(1000,5000))
-                       .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10)); ;
+                .RuleFor(u => u.Bonus, f => f.Random.Int(1, 10)); ;
 
             return generator;
 
         }
 
-      
-
+ 
         public List<Client> GetClientsList()
         {
             var clientList = GetFakeDataClient().Generate(1000);

@@ -4,16 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models
+namespace Services.Filters
 {
-    public class Person
+    public class EmployeeFilter
     {
-        public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public int PassportID { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public int Bonus { get; set; }
-
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
 }

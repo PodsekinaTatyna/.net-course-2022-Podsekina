@@ -1,12 +1,5 @@
-﻿using Bogus.DataSets;
-using Models;
-using Services.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Models;
+using ModelsDb;
 
 namespace Services.Storages
 {
@@ -73,7 +66,6 @@ namespace Services.Storages
             oldAccount.Amount = account.Amount;
 
         }
+
     }
-
-
 }
