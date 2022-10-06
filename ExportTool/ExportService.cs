@@ -30,8 +30,8 @@ namespace ExportTool
                 dirInfo.Create();
             }
 
-            string fullPath = GetFullPathToFile(_pathToDirectory, _csvFileName);
-            using(FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
+            string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
+            using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
                 using(StreamWriter streamWriter = new StreamWriter(fileStream, System.Text.Encoding.UTF8))
                 {
@@ -78,7 +78,7 @@ namespace ExportTool
                 dirInfo.Create();
             }
 
-            string fullPath = GetFullPathToFile(_pathToDirectory, _csvFileName);
+            string fullPath = Path.Combine(_pathToDirectory, _csvFileName);
             using (FileStream fileStream = new FileStream(fullPath, FileMode.OpenOrCreate))
             {
                 using (StreamReader streamReader = new StreamReader(fileStream, System.Text.Encoding.UTF8))
@@ -91,12 +91,6 @@ namespace ExportTool
             }
 
         }
-
-        private string GetFullPathToFile(string pathToDirectory, string csvFileName)
-        {
-            return Path.Combine(pathToDirectory, csvFileName);
-        }
-
         
     }
 }
