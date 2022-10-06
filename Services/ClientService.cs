@@ -33,7 +33,7 @@ namespace Services
                 DateOfBirth = client.DateOfBirth,
                 Bonus = client.Bonus,
                 PhoneNumber = client.PhoneNumber
-            }; ;
+            }; 
 
             if ((DateTime.Now.Year - clientDb.DateOfBirth.Year) < 18)
                 throw new Limit18YearsException("Клиент не может быть моложе 18 лет");
