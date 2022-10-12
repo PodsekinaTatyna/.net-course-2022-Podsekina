@@ -149,6 +149,37 @@ namespace ServiceTests
             cancellationTokenSource.Cancel();
 
         }
+
+
+        [Fact]
+        public void AccountCashingOut_Test()
+        {
+            CashDispenserService cashDispenser = new CashDispenserService();
+            BankContext _bankContext = new BankContext();
+
+            var tasks = new List<Task>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                var accountDb = _bankContext.Accounts.Skip(i).Take(1).SingleOrDefault();
+
+                var account = new Account
+                {
+                    Amount = accountDb.Amount,
+                    Currency = new Curreny { Name = accountDb.CurrencyName }
+                };
+
+                tasks.Add(cashDispenser.AccountCashingOut(accountDb.ClientId, account));
+                Task.Delay(1000).Wait();
+            }
+
+            foreach (Task task in tasks)
+            {
+                task.Wait();
+            }
+
+        }
     }
+}
 
 }
