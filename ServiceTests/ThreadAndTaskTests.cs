@@ -134,6 +134,21 @@ namespace ServiceTests
             threadWritingCsv.Join();
             threadReadingCsv.Join();
         }
+
+        [Fact]
+        public void RateUpdater_Test()
+        {
+            RateUpdaterService rateUpdater = new RateUpdaterService(new ClientService());
+
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            var taskRateUpdater = rateUpdater.AccruingInterest(cancellationToken);
+            taskRateUpdater.Wait(20000);
+
+            cancellationTokenSource.Cancel();
+
+        }
     }
 
 }
