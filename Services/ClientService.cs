@@ -5,6 +5,7 @@ using Services.Filters;
 using Services.Storages;
 using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
+using Bogus.DataSets;
 
 namespace Services
 {
@@ -68,6 +69,13 @@ namespace Services
 
             if (clientDb == null)
                 throw new KeyNotFoundException("В базе нет такого клиента");
+            clientDb.Id = client.Id;
+            clientDb.FirstName = client.FirstName;
+            clientDb.LastName = client.LastName;
+            clientDb.PassportID = client.PassportID;
+            clientDb.DateOfBirth = client.DateOfBirth;
+            clientDb.Bonus = client.Bonus;
+            clientDb.PhoneNumber = client.PhoneNumber;
 
             bankContext.Clients.Update(clientDb);
             bankContext.SaveChanges();
@@ -176,6 +184,9 @@ namespace Services
 
             if (accountDb == null)
                 throw new NullReferenceException("У клиента нет такого счета");
+
+            accountDb.Amount = account.Amount;
+            accountDb.CurrencyName = account.Currency.Name;
 
             bankContext.Accounts.Update(accountDb);
             bankContext.SaveChanges();
