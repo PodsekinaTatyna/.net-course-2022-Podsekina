@@ -34,7 +34,7 @@ namespace Services
                 DateOfBirth = client.DateOfBirth,
                 Bonus = client.Bonus,
                 PhoneNumber = client.PhoneNumber
-            }; 
+            };
 
             if ((DateTime.Now.Year - clientDb.DateOfBirth.Year) < 18)
                 throw new Limit18YearsException("Клиент не может быть моложе 18 лет");
@@ -45,21 +45,21 @@ namespace Services
             if (await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == client.Id) != null)
                 throw new ArgumentException("Такой клиент уже существует");
 
-                bankContext.Clients.Add(clientDb);
+            await bankContext.Clients.AddAsync(clientDb);
 
-                bankContext.Accounts.Add(new AccountDb
+            await bankContext.Accounts.AddAsync(new AccountDb
+            {
+                Amount = 0,
+                ClientId = clientDb.Id,
+                CurrencyName = "USD",
+                Currency = new CurrencyDb
                 {
-                    Amount = 0,
-                    ClientId = clientDb.Id,
-                    CurrencyName = "USD",
-                    Currency = new CurrencyDb
-                    {
-                        Name = "USD",
-                        Code = 840,
-                    }
-                });
+                    Name = "USD",
+                    Code = 840,
+                }
+            });
 
-                await bankContext.SaveChangesAsync();
+            await bankContext.SaveChangesAsync();
         }
 
         public async Task UpdateClientAsync(Client client)
@@ -154,7 +154,7 @@ namespace Services
             if (await bankContext.Accounts.FirstOrDefaultAsync(p => p.ClientId == id && p.CurrencyName == account.Currency.Name) != null) 
                 throw new AccountAlreadyExistsException("У клиента уже есть такой счет");
 
-            bankContext.Accounts.Add(accountDb);
+            await bankContext.Accounts.AddAsync(accountDb);
             await bankContext.SaveChangesAsync();
         }
 

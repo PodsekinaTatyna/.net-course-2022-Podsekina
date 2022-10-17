@@ -7,7 +7,7 @@ using System.Linq;
 using Xunit;
 using Services.Storages;
 using System.Security.Principal;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace ServiceTests
 {
@@ -145,17 +145,17 @@ namespace ServiceTests
             clientFilter.LastName = null;
             clientFilter.PhoneNumber = null;
 
-            clientFilter.StartDate = clientService.bankContext.Clients.Min(p => p.DateOfBirth);
+            clientFilter.StartDate = await clientService.bankContext.Clients.MinAsync(p => p.DateOfBirth);
 
             Assert.NotNull(await clientService.GetClientsAsync(clientFilter, page, limit));
             clientFilter.StartDate = default;
 
-            clientFilter.EndDate = clientService.bankContext.Clients.Max(p => p.DateOfBirth);
+            clientFilter.EndDate = await clientService.bankContext.Clients.MaxAsync(p => p.DateOfBirth);
 
             Assert.NotNull(await clientService.GetClientsAsync(clientFilter, page, limit));
             clientFilter.StartDate = default;
 
-            var averageAge = clientService.bankContext.Clients.Average(p => p.DateOfBirth.Year);
+            var averageAge = await clientService.bankContext.Clients.AverageAsync(p => p.DateOfBirth.Year);
 
         }
 
@@ -177,7 +177,7 @@ namespace ServiceTests
                 await Assert.ThrowsAsync<KeyNotFoundException>(() => clientService.DeleteClientAsync(noExistsClient));
 
                 await clientService.DeleteClientAsync(existsClient);
-                Assert.Null(clientService.bankContext.Clients.FirstOrDefault(p => p.Id == existsClient.Id));
+                Assert.Null(await clientService.bankContext.Clients.FirstOrDefaultAsync(p => p.Id == existsClient.Id));
             }
             catch (Exception ex)
             {
@@ -242,7 +242,7 @@ namespace ServiceTests
 
                 await Assert.ThrowsAsync<KeyNotFoundException>(() => clientService.AddNewAccountAsync(noExistsClient.Id, newAccount));
                 await Assert.ThrowsAsync<AccountAlreadyExistsException>(() => clientService.AddNewAccountAsync(client.Id, newAccount));
-                Assert.NotNull(clientService.bankContext.Accounts.FirstOrDefault(p => p.ClientId == client.Id && p.CurrencyName == newAccount.Currency.Name));
+                Assert.NotNull(await clientService.bankContext.Accounts.FirstOrDefaultAsync(p => p.ClientId == client.Id && p.CurrencyName == newAccount.Currency.Name));
             }
             catch (Exception ex)
             {
@@ -338,7 +338,7 @@ namespace ServiceTests
                 await Assert.ThrowsAsync<NullReferenceException>(() => clientService.DeleteAccountAsync(existsClient.Id, noExistsAccount));
 
                 await clientService.DeleteAccountAsync(existsClient.Id, existsAccount);
-                Assert.Null(clientService.bankContext.Accounts.FirstOrDefault(p => p.ClientId == existsClient.Id && p.CurrencyName == existsAccount.Currency.Name));
+                Assert.Null(await clientService.bankContext.Accounts.FirstOrDefaultAsync(p => p.ClientId == existsClient.Id && p.CurrencyName == existsAccount.Currency.Name));
             }
             catch (Exception ex)
             {

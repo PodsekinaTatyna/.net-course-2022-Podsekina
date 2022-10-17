@@ -41,7 +41,7 @@ namespace Services
 
             if (employee.PassportID == 0)
                 throw new NoPassportDataException("Паспортные данные обязательно должны быть введены");
-            bankContext.Employees.Add(employeeDb);
+            await bankContext.Employees.AddAsync(employeeDb);
             await bankContext.SaveChangesAsync();
 
         }

@@ -11,6 +11,7 @@ using Services;
 using Services.Filters;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
 namespace ServiceTests
 {
@@ -108,7 +109,7 @@ namespace ServiceTests
 
                 foreach (var client in clientsFromCsv)
                 {
-                    clientService.AddNewClientAsync(client);
+                    await clientService.AddNewClientAsync(client);
                     Thread.Sleep(100);
                 }
                 
@@ -122,14 +123,14 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void RateUpdater_Test()
+        public async Task RateUpdater_Test()
         {
             RateUpdaterService rateUpdater = new RateUpdaterService(new ClientService());
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            var taskRateUpdater = rateUpdater.AccruingInterest(cancellationToken);
+            Task taskRateUpdater = rateUpdater.AccruingInterestAsync(cancellationToken);
             taskRateUpdater.Wait(20000);
 
             cancellationTokenSource.Cancel();
@@ -138,7 +139,7 @@ namespace ServiceTests
 
 
         [Fact]
-        public void AccountCashingOut_Test()
+        public async Task AccountCashingOut_Test()
         {
             CashDispenserService cashDispenser = new CashDispenserService();
             BankContext _bankContext = new BankContext();
@@ -147,7 +148,7 @@ namespace ServiceTests
 
             for (int i = 0; i < 10; i++)
             {
-                var accountDb = _bankContext.Accounts.Skip(i).Take(1).SingleOrDefault();
+                var accountDb = await _bankContext.Accounts.Skip(i).Take(1).SingleOrDefaultAsync();
 
                 var account = new Account
                 {

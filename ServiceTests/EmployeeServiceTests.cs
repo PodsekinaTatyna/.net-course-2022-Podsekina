@@ -82,9 +82,9 @@ namespace ServiceTests
             try
             {
                 await employeeService.AddNewEmployeeAsync(existsEmployee);
-                Assert.ThrowsAsync<KeyNotFoundException>(async () => await employeeService.DeleteEmployeeAsync(noExistsEmployee));
+                await Assert.ThrowsAsync<KeyNotFoundException>(() => employeeService.DeleteEmployeeAsync(noExistsEmployee));
 
-                 await employeeService.DeleteEmployeeAsync(existsEmployee);
+                await employeeService.DeleteEmployeeAsync(existsEmployee);
                 Assert.Null(await employeeService.bankContext.Employees.FirstOrDefaultAsync(p => p.Id == existsEmployee.Id));
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace ServiceTests
                 await employeeService.AddNewEmployeeAsync(existsEmployee);
                 await employeeService.UpdateEmployeeAsync(existsEmployee);
 
-                Assert.ThrowsAsync<KeyNotFoundException>(async() => await employeeService.UpdateEmployeeAsync(noExistsEmployee));
+                await Assert.ThrowsAsync<KeyNotFoundException>(() => employeeService.UpdateEmployeeAsync(noExistsEmployee));
                 
             }
             catch (Exception ex)
@@ -148,12 +148,12 @@ namespace ServiceTests
             employeeFilter.FirstName = null;
             employeeFilter.LastName = null;
          
-            employeeFilter.StartDate = employeeService.bankContext.Clients.Min(p => p.DateOfBirth);
+            employeeFilter.StartDate = await employeeService.bankContext.Clients.MinAsync(p => p.DateOfBirth);
 
             Assert.NotNull(await employeeService.GetEmployeesAsync(employeeFilter, page, limit));
             employeeFilter.StartDate = default;
 
-            employeeFilter.EndDate = employeeService.bankContext.Clients.Max(p => p.DateOfBirth);
+            employeeFilter.EndDate = await employeeService.bankContext.Clients.MaxAsync(p => p.DateOfBirth);
 
             Assert.NotNull(await employeeService.GetEmployeesAsync(employeeFilter, page, limit));
             employeeFilter.StartDate = default;
