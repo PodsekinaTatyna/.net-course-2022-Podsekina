@@ -16,9 +16,9 @@ namespace Services
             _clientService = clientService;
         }
 
-        public Task AccruingInterest(CancellationToken token)
+        public async Task AccruingInterest(CancellationToken token)
         {
-            return Task.Run(() =>
+            await Task.Run(() =>
             {
                 while (!token.IsCancellationRequested)
                 {
@@ -35,7 +35,7 @@ namespace Services
                         };
 
                         account.Amount += (decimal)5;
-                        _clientService.UpdateAccount(accountDb.ClientId, account);
+                        _clientService.UpdateAccountAsync(accountDb.ClientId, account);
                     }
 
                     Task.Delay(5000).Wait();

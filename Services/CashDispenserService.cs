@@ -9,9 +9,9 @@ namespace Services
 {
     public class CashDispenserService
     {
-        public Task AccountCashingOut(Guid id, Account account)
+        public async Task AccountCashingOut(Guid id, Account account)
         {
-            return Task.Run(() =>
+            await Task.Run(() =>
             {
                 ClientService clientService = new ClientService();
 
@@ -20,7 +20,7 @@ namespace Services
                     if (account.Amount >= 10)
                     {
                         account.Amount -= 10;
-                        clientService.UpdateAccount(id, account);
+                        clientService.UpdateAccountAsync(id, account);
                     }
                     else
                     {

@@ -14,7 +14,7 @@ namespace ServiceTests
     public class ExportTests
     {
         [Fact]
-        public void WriteClientListToCsv_FromDatabaseTest()
+        public async void WriteClientListToCsv_FromDatabaseTest()
         {
             //Arrenge
             BankContext bankContext = new BankContext(); 
@@ -41,14 +41,14 @@ namespace ServiceTests
             
 
             //Act
-            exportService.WriteClientListToCsv(clients);
+            await exportService.WriteClientListToCsvAsync(clients);
 
             //Asert
             Assert.True(true);
         }
 
         [Fact]
-        public void ReadClientListFromCsv_ToDatabase_Test()
+        public async void ReadClientListFromCsv_ToDatabase_Test()
         {
             //Arrenge
             TestDataGenerator testDataGenerator = new TestDataGenerator();
@@ -67,13 +67,13 @@ namespace ServiceTests
             }
 
             //Act
-            exportService.WriteClientListToCsv(clients);
+            await exportService.WriteClientListToCsvAsync(clients);
 
-            clientsFromCsv = exportService.ReadClientListFromCsv();
+            clientsFromCsv = await exportService.ReadClientListFromCsvAsync();
 
             foreach(var client in clientsFromCsv)
             {
-                clientService.AddNewClient(client);
+                await clientService.AddNewClientAsync(client);
             }
 
             //Asert

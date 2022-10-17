@@ -10,13 +10,14 @@ using Xunit;
 using Services.Storages;
 using ModelsDb;
 using Services.Filters;
+using Microsoft.EntityFrameworkCore;
 
 namespace ServiceTests
 {
     public class EmployeeServiceTests
     {
         [Fact]
-        public void AddNewEmployeeLimit18YearsExceptionTest()
+        public async Task AddNewEmployeeLimit18YearsExceptionTest()
         {
             EmployeeService employeeService = new EmployeeService();
             Employee employee = new Employee()
@@ -31,7 +32,7 @@ namespace ServiceTests
 
             try
             {
-                employeeService.AddNewEmployee(employee);
+                await employeeService.AddNewEmployeeAsync(employee);
             }
             catch (Limit18YearsException ex)
             {
@@ -42,7 +43,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void AddNewEmployeeNoPassportDataExceptionTest()
+        public async Task AddNewEmployeeNoPassportDataExceptionTest()
         {
             EmployeeService employeeService = new EmployeeService();
             Employee employee = new Employee()
@@ -57,7 +58,7 @@ namespace ServiceTests
 
             try
             {
-                employeeService.AddNewEmployee(employee);
+                await employeeService.AddNewEmployeeAsync(employee);
             }
             catch (NoPassportDataException ex)
             {
@@ -67,7 +68,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void DeleteEmployee_KeyNotFoundException_EmployeeRemoved_Test()
+        public async Task DeleteEmployee_KeyNotFoundException_EmployeeRemoved_Test()
         {
             // Arrange
             EmployeeService employeeService = new EmployeeService();
@@ -80,11 +81,11 @@ namespace ServiceTests
             // Act/Assert
             try
             {
-                employeeService.AddNewEmployee(existsEmployee);
-                Assert.Throws<KeyNotFoundException>(() => employeeService.DeleteEmployee(noExistsEmployee));
+                await employeeService.AddNewEmployeeAsync(existsEmployee);
+                Assert.ThrowsAsync<KeyNotFoundException>(async () => await employeeService.DeleteEmployeeAsync(noExistsEmployee));
 
-                employeeService.DeleteEmployee(existsEmployee);
-                Assert.Null(employeeService.bankContext.Employees.FirstOrDefault(p => p.Id == existsEmployee.Id));
+                 await employeeService.DeleteEmployeeAsync(existsEmployee);
+                Assert.Null(await employeeService.bankContext.Employees.FirstOrDefaultAsync(p => p.Id == existsEmployee.Id));
             }
             catch (Exception ex)
             {
@@ -94,7 +95,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void UpdateEmployee_KeyNotFoundException_EmployeeUpdated_Test()
+        public async Task UpdateEmployee_KeyNotFoundException_EmployeeUpdated_Test()
         {
             // Arrange
             EmployeeService employeeService = new EmployeeService();
@@ -107,10 +108,10 @@ namespace ServiceTests
             // Act/Assert
             try
             {
-                employeeService.AddNewEmployee(existsEmployee);
-                employeeService.UpdateEmployee(existsEmployee);
+                await employeeService.AddNewEmployeeAsync(existsEmployee);
+                await employeeService.UpdateEmployeeAsync(existsEmployee);
 
-                Assert.Throws<KeyNotFoundException>(() => employeeService.UpdateEmployee(noExistsEmployee));
+                Assert.ThrowsAsync<KeyNotFoundException>(async() => await employeeService.UpdateEmployeeAsync(noExistsEmployee));
                 
             }
             catch (Exception ex)
@@ -121,7 +122,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public void GetClients_ByTheSpecifiedFilter_Test()
+        public async Task GetEmployees_ByTheSpecifiedFilter_Test()
         {
             // Arrange
             EmployeeService employeeService = new EmployeeService();
@@ -132,7 +133,7 @@ namespace ServiceTests
             for (int i = 0; i < 10; i++)
             {
                 employee = testDataGenerator.GetFakeDataEmployee().Generate();
-                employeeService.AddNewEmployee(employee);
+                await employeeService.AddNewEmployeeAsync(employee);
             };
 
             int page = 1;
@@ -142,19 +143,19 @@ namespace ServiceTests
             employeeFilter.FirstName = employee.FirstName;
             employeeFilter.LastName = employee.LastName;
 
-            Assert.NotNull(employeeService.GetEmployees(employeeFilter, page, limit));
+            Assert.NotNull(await employeeService.GetEmployeesAsync(employeeFilter, page, limit));
 
             employeeFilter.FirstName = null;
             employeeFilter.LastName = null;
          
             employeeFilter.StartDate = employeeService.bankContext.Clients.Min(p => p.DateOfBirth);
 
-            Assert.NotNull(employeeService.GetEmployees(employeeFilter, page, limit));
+            Assert.NotNull(await employeeService.GetEmployeesAsync(employeeFilter, page, limit));
             employeeFilter.StartDate = default;
 
             employeeFilter.EndDate = employeeService.bankContext.Clients.Max(p => p.DateOfBirth);
 
-            Assert.NotNull(employeeService.GetEmployees(employeeFilter, page, limit));
+            Assert.NotNull(await employeeService.GetEmployeesAsync(employeeFilter, page, limit));
             employeeFilter.StartDate = default;
 
         }

@@ -69,9 +69,9 @@ namespace ServiceTests
 
 
         [Fact]
-        public void ReadingAndWritingCsv_InTwoDifferentStreams_Test()
+        public async Task ReadingAndWritingCsv_InTwoDifferentStreams_Test()
         {                    
-            Thread threadWritingCsv = new Thread(() =>
+            Thread threadWritingCsv = new Thread(async () =>
             {
                 ClientService clientService = new ClientService();
                 BankContext bankContext = new BankContext();
@@ -85,17 +85,17 @@ namespace ServiceTests
 
                 for (int i = 0; i < bankContext.Clients.Count(); i++)
                 {
-                    clients.Add(clientService.GetClients(new ClientFilter(), i + 1, 1).SingleOrDefault());
+                    clients.Add(clientService.GetClientsAsync(new ClientFilter(), i + 1, 1).Result.FirstOrDefault());
 
                     _output.WriteLine($"{clients[i].Id} {clients[i].FirstName} {clients[i].LastName}");
                     Thread.Sleep(100);
                 }
 
-                exportServiceWritingCsv.WriteClientListToCsv(clients);
+                await exportServiceWritingCsv.WriteClientListToCsvAsync(clients);
                                 
             });
 
-            Thread threadReadingCsv = new Thread(() =>
+            Thread threadReadingCsv = new Thread(async () =>
             {
                 ClientService clientService = new ClientService();
                 
@@ -104,11 +104,11 @@ namespace ServiceTests
 
                 ExportService exportServiceReadingCsv = new ExportService(directoryPath, fileName);
 
-                List<Client> clientsFromCsv = exportServiceReadingCsv.ReadClientListFromCsv();
+                List<Client> clientsFromCsv = await exportServiceReadingCsv.ReadClientListFromCsvAsync();
 
                 foreach (var client in clientsFromCsv)
                 {
-                    clientService.AddNewClient(client);
+                    clientService.AddNewClientAsync(client);
                     Thread.Sleep(100);
                 }
                 
@@ -159,13 +159,36 @@ namespace ServiceTests
                 Task.Delay(1000).Wait();
             }
 
-            foreach (Task task in tasks)
+        }
+
+        [Fact]
+        public void AsyncStartTest_Test()
+        {
+            ThreadPool.SetMaxThreads(10, 10);
+            ThreadPool.GetAvailableThreads(out int worker, out int completion);
+
+            _output.WriteLine("Максимальное число рабочих потоков: " + worker);
+
+            for (int i = 0; i < 14; i++)
             {
-                task.Wait();
+                StartTestTask();
+
+                Task.Delay(100).Wait();
+
+                ThreadPool.GetAvailableThreads(out worker, out completion);
+                _output.WriteLine("Оставшиеся потоки: " + worker);
             }
 
+
+            async Task StartTestTask()
+            {
+                await Task.Run(() =>
+                {
+                    _output.WriteLine("Выполняется работа");
+                    Task.Delay(3000).Wait();
+                });
+            }
         }
     }
 }
 
-}
