@@ -9,9 +9,9 @@ namespace Services
 {
     public class CashDispenserService
     {
-        public async Task AccountCashingOut(Guid id, Account account)
+        public Task AccountCashingOut(Guid id, Account account)
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 ClientService clientService = new ClientService();
 

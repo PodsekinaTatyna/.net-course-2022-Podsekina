@@ -123,7 +123,7 @@ namespace ServiceTests
         }
 
         [Fact]
-        public async Task RateUpdater_Test()
+        public void RateUpdater_Test()
         {
             RateUpdaterService rateUpdater = new RateUpdaterService(new ClientService());
 

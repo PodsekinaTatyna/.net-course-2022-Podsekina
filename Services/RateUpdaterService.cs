@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
@@ -22,7 +23,7 @@ namespace Services
             {
                 BankContext _bankContext = new BankContext();
 
-                var accountsDb = _bankContext.Accounts.Take(10).ToList();
+                var accountsDb = await _bankContext.Accounts.Take(10).ToListAsync();
 
                 foreach (var accountDb in accountsDb)
                 {
