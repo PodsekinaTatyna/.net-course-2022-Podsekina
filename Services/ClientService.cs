@@ -18,9 +18,21 @@ namespace Services
             bankContext = new BankContext();
         }
 
-        public async Task<ClientDb> GetClientAsync(Guid id)
+        public async Task<Client> GetClientAsync(Guid id)
         {
-            return await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == id);
+
+            var clientDb = await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == id);
+
+            return new Client
+            {
+                Id = clientDb.Id,
+                FirstName = clientDb.FirstName,
+                LastName = clientDb.LastName,
+                PassportID = clientDb.PassportID,
+                DateOfBirth = clientDb.DateOfBirth,
+                Bonus = clientDb.Bonus,
+                PhoneNumber = clientDb.PhoneNumber
+            };
         }
 
         public async Task AddNewClientAsync(Client client)
