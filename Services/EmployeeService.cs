@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Models;
 using ModelsDb;
 using Services.Exceptions;
 using Services.Filters;
@@ -21,7 +22,7 @@ namespace Services
             bankContext = new BankContext();
         }
 
-        public void AddNewEmployee(Employee employee)
+        public async Task AddNewEmployeeAsync(Employee employee)
         {
             var employeeDb = new EmployeeDb
             {
@@ -40,12 +41,12 @@ namespace Services
 
             if (employee.PassportID == 0)
                 throw new NoPassportDataException("Паспортные данные обязательно должны быть введены");
-            bankContext.Employees.Add(employeeDb);
-            bankContext.SaveChanges();
+            await bankContext.Employees.AddAsync(employeeDb);
+            await bankContext.SaveChangesAsync();
 
         }
 
-        public void DeleteEmployee(Employee employee)
+        public async Task DeleteEmployeeAsync(Employee employee)
         {
             var employeeDb = bankContext.Employees.FirstOrDefault(p => p.Id == employee.Id);
 
@@ -53,11 +54,11 @@ namespace Services
                 throw new KeyNotFoundException("В базе нет такого сотрудника");
 
             bankContext.Employees.Remove(employeeDb);
-            bankContext.SaveChanges();
+            await bankContext.SaveChangesAsync();
 
         }
 
-        public void UpdateEmployee(Employee employee)
+        public async Task UpdateEmployeeAsync(Employee employee)
         {
             var employeeDb = bankContext.Employees.FirstOrDefault(p => p.Id == employee.Id);
 
@@ -65,13 +66,13 @@ namespace Services
                 throw new KeyNotFoundException("В базе нет такого сотрудника");
 
             bankContext.Employees.Update(employeeDb);
-            bankContext.SaveChanges();
+            await bankContext.SaveChangesAsync();
 
         }
 
-        public List<Employee> GetEmployees(EmployeeFilter employeeFilter, int page, int limit)
+        public async Task<List<Employee>> GetEmployeesAsync(EmployeeFilter employeeFilter, int page, int limit)
         {
-            var query = bankContext.Employees.Select(p => p);
+            var query = bankContext.Employees.Select(p => p).AsNoTracking();
 
             if (employeeFilter.FirstName != null)
                 query = query.Where(p => p.FirstName == employeeFilter.FirstName);
@@ -85,7 +86,7 @@ namespace Services
             if (employeeFilter.EndDate != default)
                 query = query.Where(p => p.DateOfBirth == employeeFilter.EndDate);
 
-            var filteredList = query.Skip((page - 1) * limit).Take(limit).ToList();
+            var filteredList = await query.Skip((page - 1) * limit).Take(limit).ToListAsync();
 
             var employeetList = new List<Employee>();
 

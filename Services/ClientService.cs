@@ -18,12 +18,12 @@ namespace Services
             bankContext = new BankContext();
         }
 
-        public ClientDb GetClient(Guid id)
+        public async Task<ClientDb> GetClientAsync(Guid id)
         {
-            return bankContext.Clients.FirstOrDefault(p => p.Id == id);
+            return await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public void AddNewClient(Client client)
+        public async Task AddNewClientAsync(Client client)
         {
             var clientDb = new ClientDb
             {
@@ -34,7 +34,7 @@ namespace Services
                 DateOfBirth = client.DateOfBirth,
                 Bonus = client.Bonus,
                 PhoneNumber = client.PhoneNumber
-            }; 
+            };
 
             if ((DateTime.Now.Year - clientDb.DateOfBirth.Year) < 18)
                 throw new Limit18YearsException("Клиент не может быть моложе 18 лет");
@@ -42,12 +42,12 @@ namespace Services
             if (clientDb.PassportID == 0)
                 throw new NoPassportDataException("Паспортные данные обязательно должны быть введены");
 
-            if (bankContext.Clients.FirstOrDefault(p => p.Id == client.Id) != null)
+            if (await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == client.Id) != null)
                 throw new ArgumentException("Такой клиент уже существует");
 
-            bankContext.Clients.Add(clientDb);
+            await bankContext.Clients.AddAsync(clientDb);
 
-            bankContext.Accounts.Add(new AccountDb
+            await bankContext.Accounts.AddAsync(new AccountDb
             {
                 Amount = 0,
                 ClientId = clientDb.Id,
@@ -59,13 +59,12 @@ namespace Services
                 }
             });
 
-            bankContext.SaveChanges();
-
+            await bankContext.SaveChangesAsync();
         }
 
-        public void UpdateClient(Client client)
+        public async Task UpdateClientAsync(Client client)
         {
-            var clientDb = bankContext.Clients.FirstOrDefault(p => p.Id == client.Id);
+            var clientDb = await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == client.Id);
 
             if (clientDb == null)
                 throw new KeyNotFoundException("В базе нет такого клиента");
@@ -78,23 +77,23 @@ namespace Services
             clientDb.PhoneNumber = client.PhoneNumber;
 
             bankContext.Clients.Update(clientDb);
-            bankContext.SaveChanges();
-
+            await bankContext.SaveChangesAsync();
+            
         }
 
-        public void DeleteClient(Client client)
+        public async Task DeleteClientAsync(Client client)
         {
-            var clientDb = bankContext.Clients.FirstOrDefault(p => p.Id == client.Id);
+            var clientDb = await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == client.Id);
 
             if (clientDb == null)
                 throw new KeyNotFoundException("В базе нет такого клиента");
 
             bankContext.Clients.Remove(clientDb);
-            bankContext.SaveChanges();
-
+            await bankContext.SaveChangesAsync();
+                     
         }
 
-        public List<Client> GetClients(ClientFilter clientFilter, int page, int limit)
+        public async Task<List<Client>> GetClientsAsync(ClientFilter clientFilter, int page, int limit)
         {
             var query = bankContext.Clients.Select(p => p).AsNoTracking();
 
@@ -113,7 +112,7 @@ namespace Services
             if (clientFilter.EndDate != default)
                 query = query.Where(p => p.DateOfBirth == clientFilter.EndDate);
 
-            var filteredList = query.Skip((page - 1) * limit).Take(limit).ToList();
+            var filteredList = await query.Skip((page - 1) * limit).Take(limit).ToListAsync();
 
             var clientList = new List<Client>();
 
@@ -135,7 +134,7 @@ namespace Services
 
         }
 
-        public void AddNewAccount(Guid id, Account account)
+        public async Task AddNewAccountAsync(Guid id, Account account)
         {
             var accountDb = new AccountDb
             {
@@ -149,38 +148,37 @@ namespace Services
                 }
             };
 
-            if (bankContext.Clients.FirstOrDefault(p => p.Id == id) == null)
+            if (await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == id) == null)
                 throw new KeyNotFoundException("В базе нет такого клиента");        
 
-            if (bankContext.Accounts.FirstOrDefault(p => p.ClientId == id && p.CurrencyName == account.Currency.Name) != null) 
+            if (await bankContext.Accounts.FirstOrDefaultAsync(p => p.ClientId == id && p.CurrencyName == account.Currency.Name) != null) 
                 throw new AccountAlreadyExistsException("У клиента уже есть такой счет");
 
-            bankContext.Accounts.Add(accountDb);
-            bankContext.SaveChanges();
-
+            await bankContext.Accounts.AddAsync(accountDb);
+            await bankContext.SaveChangesAsync();
         }
 
-        public void DeleteAccount(Guid id, Account account)
+        public async Task DeleteAccountAsync(Guid id, Account account)
         {            
-            if (bankContext.Clients.FirstOrDefault(p => p.Id == id) == null)
+            if (await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == id) == null)
                 throw new KeyNotFoundException("В базе нет такого клиента");
 
-            var accountDb = bankContext.Accounts.FirstOrDefault(p => p.ClientId == id && p.CurrencyName == account.Currency.Name);
+            var accountDb = await bankContext.Accounts.FirstOrDefaultAsync(p => p.ClientId == id && p.CurrencyName == account.Currency.Name);
 
             if (accountDb == null)
                 throw new NullReferenceException("У клиента нет такого счета");
 
             bankContext.Accounts.Remove(accountDb);
-            bankContext.SaveChanges();
+            await bankContext.SaveChangesAsync();
 
         }
 
-        public void UpdateAccount(Guid id, Account account)
+        public async Task UpdateAccountAsync(Guid id, Account account)
         {
-            if (bankContext.Clients.FirstOrDefault(p => p.Id == id) == null)
+            if (await bankContext.Clients.FirstOrDefaultAsync(p => p.Id == id) == null)
                 throw new KeyNotFoundException("В базе нет такого клиента");
 
-            var accountDb = bankContext.Accounts.FirstOrDefault(p => p.ClientId == id && p.CurrencyName == account.Currency.Name);
+            var accountDb = await bankContext.Accounts.FirstOrDefaultAsync(p => p.ClientId == id && p.CurrencyName == account.Currency.Name);
 
             if (accountDb == null)
                 throw new NullReferenceException("У клиента нет такого счета");
@@ -189,7 +187,7 @@ namespace Services
             accountDb.CurrencyName = account.Currency.Name;
 
             bankContext.Accounts.Update(accountDb);
-            bankContext.SaveChanges();
+            await bankContext.SaveChangesAsync();
 
         }
     }

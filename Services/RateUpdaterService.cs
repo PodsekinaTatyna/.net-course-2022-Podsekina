@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
@@ -16,32 +17,28 @@ namespace Services
             _clientService = clientService;
         }
 
-        public Task AccruingInterest(CancellationToken token)
+        public async Task AccruingInterestAsync(CancellationToken token)
         {
-            return Task.Run(() =>
+            while (!token.IsCancellationRequested)
             {
-                while (!token.IsCancellationRequested)
+                BankContext _bankContext = new BankContext();
+
+                var accountsDb = await _bankContext.Accounts.Take(10).ToListAsync();
+
+                foreach (var accountDb in accountsDb)
                 {
-                    BankContext _bankContext = new BankContext();
-
-                    var accountsDb = _bankContext.Accounts.Take(10).ToList();
-
-                    foreach (var accountDb in accountsDb)
+                    var account = new Account
                     {
-                        var account = new Account
-                        {
-                            Amount = accountDb.Amount,
-                            Currency = new Curreny { Name = accountDb.CurrencyName }
-                        };
+                        Amount = accountDb.Amount,
+                        Currency = new Curreny { Name = accountDb.CurrencyName }
+                    };
 
-                        account.Amount += (decimal)5;
-                        _clientService.UpdateAccount(accountDb.ClientId, account);
-                    }
-
-                    Task.Delay(5000).Wait();
+                    account.Amount += (decimal)5;
+                    await _clientService.UpdateAccountAsync(accountDb.ClientId, account);
                 }
-            });
 
+                Task.Delay(5000).Wait();
+            }
         }
     }
 }

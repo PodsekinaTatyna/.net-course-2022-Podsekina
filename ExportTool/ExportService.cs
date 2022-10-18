@@ -20,7 +20,7 @@ namespace ExportTool
             _csvFileName = csvFileName;
         }
 
-        public void WriteClientListToCsv(List<Client> clients)
+        public async Task WriteClientListToCsvAsync(List<Client> clients)
         {
 
             DirectoryInfo dirInfo = new DirectoryInfo(_pathToDirectory);
@@ -37,37 +37,40 @@ namespace ExportTool
                 {
                     using(var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
                     {
-                        writer.WriteField("Id");
-                        writer.WriteField("FirstName");
-                        writer.WriteField("LastName");
-                        writer.WriteField("PassportID");
-                        writer.WriteField("DateOfBirth");
-                        writer.WriteField("PhoneNumber");
-                        writer.WriteField("Bonus");
-
-                        writer.NextRecord();
-
-                        foreach (Client client in clients)
+                        await Task.Run(() =>
                         {
-                            writer.WriteField(client.Id);
-                            writer.WriteField(client.FirstName);
-                            writer.WriteField(client.LastName);
-                            writer.WriteField(client.PassportID);
-                            writer.WriteField(client.DateOfBirth);
-                            writer.WriteField(client.PhoneNumber);
-                            writer.WriteField(client.Bonus);
+                            writer.WriteField("Id");
+                            writer.WriteField("FirstName");
+                            writer.WriteField("LastName");
+                            writer.WriteField("PassportID");
+                            writer.WriteField("DateOfBirth");
+                            writer.WriteField("PhoneNumber");
+                            writer.WriteField("Bonus");
 
                             writer.NextRecord();
-                        }
 
-                        writer.Flush();
+                            foreach (Client client in clients)
+                            {
+                                writer.WriteField(client.Id);
+                                writer.WriteField(client.FirstName);
+                                writer.WriteField(client.LastName);
+                                writer.WriteField(client.PassportID);
+                                writer.WriteField(client.DateOfBirth);
+                                writer.WriteField(client.PhoneNumber);
+                                writer.WriteField(client.Bonus);
+
+                                writer.NextRecord();
+                            }
+
+                            writer.Flush();
+                        });                    
                     }
                 }
             }
 
         }
 
-        public List<Client> ReadClientListFromCsv()
+        public async Task<List<Client>> ReadClientListFromCsvAsync()
         {
             
 
@@ -85,7 +88,7 @@ namespace ExportTool
                 {
                     using(var reader = new CsvReader(streamReader, CultureInfo.CurrentCulture))
                     {
-                        return reader.GetRecords<Client>().ToList();
+                        return await Task.Run(() => reader.GetRecords<Client>().ToList());
                     }
                 }
             }

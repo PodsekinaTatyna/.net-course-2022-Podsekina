@@ -20,7 +20,7 @@ namespace Services
                     if (account.Amount >= 10)
                     {
                         account.Amount -= 10;
-                        clientService.UpdateAccount(id, account);
+                        clientService.UpdateAccountAsync(id, account);
                     }
                     else
                     {
