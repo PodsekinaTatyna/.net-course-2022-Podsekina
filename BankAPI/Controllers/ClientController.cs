@@ -18,26 +18,26 @@ namespace BankAPI.Controllers
         [HttpGet]
         public Client GetClient(Guid id)
         {
-            return _clientService.GetClient(id);
+            return _clientService.GetClientAsync(id).Result;
         }
 
         [HttpPost]
         public void AddClient(Client client)
         {
-            _clientService.AddNewClient(client);
+            _clientService.AddNewClientAsync(client);
         }
 
         [HttpDelete]
         public void DeleteClient(Client client)
         {
-            _clientService.DeleteClient(client);
+            _clientService.DeleteClientAsync(client);
         }
 
         [HttpPut]
         public void UpdateClient(Client client)
         {
-            _clientService.UpdateClient(client);
+            _clientService.UpdateClientAsync(client);
         }
 
-}
+    }
 }
