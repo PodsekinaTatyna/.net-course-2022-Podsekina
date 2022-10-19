@@ -94,11 +94,32 @@ namespace ServiceTests
             List<Client> clients = testDataGenerator.GetFakeDataClient().Generate(10);
 
             //Act
-            await exportService.ClientSerializationWriteToFileAsync(clients, directoryPath, fileName);
-            var clientsDesirialization = await exportService.ClientDeserializationReadFromFileAsync(directoryPath, fileName);
+            await exportService.PersonSerializationWriteToFileAsync(clients, directoryPath, fileName);
+            var clientsDesirialization = await exportService.PersonDeserializationReadFromFileAsync<Client>(directoryPath, fileName);
 
             //Assert
             Assert.Equal(clients.First().Id, clientsDesirialization.First().Id);
+
+        }
+
+        [Fact]
+        public async void EmployeeSerializationWriteAndReadFromFileAsync_Test()
+        {
+            //Arrenge
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
+
+            string directoryPath = Path.Combine("C:", "Users", "Professional", "Desktop", ".net-course-2022-Podsekina");
+            string fileName = "employeeSerialization.json";
+
+            ExportService exportService = new ExportService(directoryPath, fileName);
+            List<Employee> employees = testDataGenerator.GetFakeDataEmployee().Generate(10);
+
+            //Act
+            await exportService.PersonSerializationWriteToFileAsync(employees, directoryPath, fileName);
+            List<Employee> employeesDesirialization = await exportService.PersonDeserializationReadFromFileAsync<Employee>(directoryPath, fileName);
+
+            //Assert
+            Assert.Equal(employees.First().Id, employeesDesirialization.First().Id);
 
         }
     }

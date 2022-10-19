@@ -97,7 +97,7 @@ namespace ExportTool
         }
 
 
-        public async Task ClientSerializationWriteToFileAsync(List<Client> client, string pathToDirectory, string fileName)
+        public async Task PersonSerializationWriteToFileAsync<T>(List<T> person, string pathToDirectory, string fileName) where T : Person
         {
             DirectoryInfo dirInfo = new DirectoryInfo(pathToDirectory);
 
@@ -109,13 +109,13 @@ namespace ExportTool
             string fullPath = Path.Combine(pathToDirectory, fileName);
             using (StreamWriter writer = new StreamWriter(fullPath))
             {
-                string clientSerialize = JsonConvert.SerializeObject(client);
-                await writer.WriteAsync(clientSerialize);
+                string personSerialize = JsonConvert.SerializeObject(person);
+                await writer.WriteAsync(personSerialize);
             }
 
         }
 
-        public async Task<List<Client>> ClientDeserializationReadFromFileAsync(string pathToDirectory, string fileName)
+        public async Task<List<T>> PersonDeserializationReadFromFileAsync<T>(string pathToDirectory, string fileName) where T : Person
         {
             DirectoryInfo dirInfo = new DirectoryInfo(pathToDirectory);
 
@@ -127,9 +127,9 @@ namespace ExportTool
             string fullPath = Path.Combine(pathToDirectory, fileName);
             using (StreamReader reader = new StreamReader(fullPath))
             {
-                string clientSerialize = await reader.ReadToEndAsync();
-                var clientDeserialize = JsonConvert.DeserializeObject<List<Client>>(clientSerialize);
-                return clientDeserialize;
+                string personSerialize = await reader.ReadToEndAsync();
+                List<T> personDeserialize = JsonConvert.DeserializeObject<List<T>>(personSerialize);
+                return personDeserialize;
             }
 
         }
