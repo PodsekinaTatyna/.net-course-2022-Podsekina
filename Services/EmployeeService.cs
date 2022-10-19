@@ -6,6 +6,7 @@ using Services.Filters;
 using Services.Storages;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,24 @@ namespace Services
         public EmployeeService()
         {
             bankContext = new BankContext();
+        }
+
+        public async Task<Employee> GetEmployeeAsync(Guid id)
+        {
+
+            var employeeDb = await bankContext.Employees.FirstOrDefaultAsync(p => p.Id == id);
+
+            return new Employee
+            {
+                Id = employeeDb.Id,
+                FirstName = employeeDb.FirstName,
+                LastName = employeeDb.LastName,
+                PassportID = employeeDb.PassportID,
+                DateOfBirth = employeeDb.DateOfBirth,
+                Bonus = employeeDb.Bonus,
+                Salary = employeeDb.Salary,
+                Contract = employeeDb.Contract,
+            };
         }
 
         public async Task AddNewEmployeeAsync(Employee employee)
@@ -64,6 +83,15 @@ namespace Services
 
             if (employeeDb == null)
                 throw new KeyNotFoundException("В базе нет такого сотрудника");
+
+            employeeDb.Id = employee.Id;
+            employeeDb.FirstName = employee.FirstName;
+            employeeDb.LastName = employee.LastName;
+            employeeDb.PassportID = employee.PassportID;
+            employeeDb.DateOfBirth = employee.DateOfBirth;
+            employeeDb.Bonus = employee.Bonus;
+            employeeDb.Salary = employee.Salary;
+            employeeDb.Contract = employee.Contract;
 
             bankContext.Employees.Update(employeeDb);
             await bankContext.SaveChangesAsync();
