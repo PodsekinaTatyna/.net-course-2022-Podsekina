@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace ExportTool
 {
@@ -94,6 +95,43 @@ namespace ExportTool
             }
 
         }
-        
+
+
+        public async Task PersonSerializationWriteToFileAsync<T>(List<T> person, string pathToDirectory, string fileName) where T : Person
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(pathToDirectory);
+
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+
+            string fullPath = Path.Combine(pathToDirectory, fileName);
+            using (StreamWriter writer = new StreamWriter(fullPath))
+            {
+                string personSerialize = JsonConvert.SerializeObject(person);
+                await writer.WriteAsync(personSerialize);
+            }
+
+        }
+
+        public async Task<List<T>> PersonDeserializationReadFromFileAsync<T>(string pathToDirectory, string fileName) where T : Person
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(pathToDirectory);
+
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+
+            string fullPath = Path.Combine(pathToDirectory, fileName);
+            using (StreamReader reader = new StreamReader(fullPath))
+            {
+                string personSerialize = await reader.ReadToEndAsync();
+                List<T> personDeserialize = JsonConvert.DeserializeObject<List<T>>(personSerialize);
+                return personDeserialize;
+            }
+
+        }
     }
 }
