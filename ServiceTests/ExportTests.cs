@@ -80,5 +80,26 @@ namespace ServiceTests
             Assert.True(true);
         }
 
+
+        [Fact]
+        public async void ClientSerializationWriteAndReadFromFileAsync_Test()
+        {
+            //Arrenge
+            TestDataGenerator testDataGenerator = new TestDataGenerator();
+
+            string directoryPath = Path.Combine("C:", "Users", "Professional", "Desktop", ".net-course-2022-Podsekina");
+            string fileName = "clientSerialization.json";
+
+            ExportService exportService = new ExportService(directoryPath, fileName);
+            List<Client> clients = testDataGenerator.GetFakeDataClient().Generate(10);
+
+            //Act
+            await exportService.ClientSerializationWriteToFileAsync(clients, directoryPath, fileName);
+            var clientsDesirialization = await exportService.ClientDeserializationReadFromFileAsync(directoryPath, fileName);
+
+            //Assert
+            Assert.Equal(clients.First().Id, clientsDesirialization.First().Id);
+
+        }
     }
 }
